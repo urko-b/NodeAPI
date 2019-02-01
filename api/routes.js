@@ -7,6 +7,10 @@ var express = require('express'),
     restful = require('node-restful'),
     mongoose = restful.mongoose;
 
+var environment = require('../config-module.js').config();
+
+
+
 var schemaWithId = require('../schema-without-id.json');
 var dbSchema = require('../schema.json');
 var ObjectId = require('mongoose').Types.ObjectId;
@@ -18,14 +22,13 @@ module.exports = function (app) {
     app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
     app.use(methodOverride());
 
-    mongoose.connect("mongodb://ksilophone:Q1ckgr1nd3r" +
-    "@cluster0-shard-00-01-7dio0.mongodb.net:27017/NodeApi?replicaSet=Cluster0-shard-0&authSource=admin");
+    mongoose.connect(`${environment.CLUSTER}`);
 
-    var book = app.book = restful.model('Book', mongoose.Schema(dbSchema.Book), 'Book')
+    var book = app.book = restful.model('book', mongoose.Schema(dbSchema.Book), 'book')
         .methods(['get', 'post', 'put', 'delete'])
         .updateOptions({ new: true });
 
-    var crag = app.crag = restful.model('Crag', mongoose.Schema(dbSchema.Crag), 'Crag')
+    var crag = app.crag = restful.model('crag', mongoose.Schema(dbSchema.Crag), 'crag')
         .methods(['get', 'post', 'put', 'delete'])
         .updateOptions({ new: true });
 
@@ -33,10 +36,10 @@ module.exports = function (app) {
         res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     }
 
-    book.register(app, '/book');
-    crag.register(app, '/crag');
+    book.register(app, `/webapi/${environment.VERSION}/book`);
+    crag.register(app, `/webapi/${environment.VERSION}/crag`);
 
-    app.patch('/book/:id', function (req, res) {
+    app.patch(`/webapi/${environment.VERSION}/book/:id`, function (req, res) {
         var updateObject = req.body;
         var id = new ObjectId(req.params.id);
         app.book.findOneAndUpdate({ _id: id }, updateObject, { new: true, runValidators: true }, (err, book) => {
