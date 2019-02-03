@@ -4,6 +4,7 @@ var schm = require('schm');
 var routeSchema = new schm({
     resource: String,
     methods: [],
+    strict: Object,
     model: String,
     updateOptions: Object
 });
@@ -21,9 +22,9 @@ module.exports = {
         }),
         routeSchema.parse({
             resource: 'crag',
-            methods: ['get', 'post', 'put', 'delete'],
+            methods: ['get', 'post', 'put', 'patch', 'delete'],
             model: 'crag',
             updateOptions: { new: true }
-        })
+         })
     ]
 }
