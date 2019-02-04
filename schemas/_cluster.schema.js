@@ -57,7 +57,10 @@ module.exports =
 				"required": true
 			},
 			"sectors": [{
-				
+				"name": {
+					"type": "string"
+				},
+				"routes": [{}]
 			}],
 			"location": {
 				"type": "Object",
