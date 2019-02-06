@@ -1,43 +1,40 @@
 'use strict';
 
+const mongoose = require('mongoose');
 var restful = require('node-restful');
-var mongoose = require('mongoose');
 restful.mongoose = mongoose;
-var config = require('../config-module.js').config();
-var routes = require('./routes.config').routes;
-//var dbSchema = require('../schemas/cluster.schema.json');
-var dbSchema = require('../schemas/_cluster.schema');
-var ObjectId = require('mongoose').Types.ObjectId;
-var bodyParser = require('body-parser');
-var methodOverride = require('method-override');
-var morgan = require('morgan');
+
+const models = require('../models/model').routes;
+const dbSchema = require('../schemas/_cluster.schema');
+const ObjectId = mongoose.Types.ObjectId;
 
 
-var registerRoute = function (route, app) {
-    var resourceName = route.resource;
-    var modelName = route.model;
+var registerRoute = function (model, app) {
+    var resource = model.resource;
+    var modelName = model.model;
     var schema = dbSchema[modelName];
-    var strict = route.strict;
+    var strict = model.strict;
+    var routeName = model.routeName;
+    
+    var route = app[resource] = restful.model(modelName, mongoose.Schema(schema, strict), modelName)
+        .methods(model.methods)
+        .updateOptions(model.updateOptions);
 
-    var resource = app[resourceName] = restful.model(modelName, mongoose.Schema(schema, strict), modelName)
-        .methods(route.methods)
-        .updateOptions(route.updateOptions);
-
-    resource.register(app, `/${config.WEBAPINAME}/${config.VERSION}/${resourceName}`);
-    if (route.methods.includes('patch')) {
-        registerPatch(app, schema, resourceName);
+    route.register(app, routeName);
+    if (model.methods.includes('patch')) {
+        registerPatch(app, schema, routeName, resource);
     }
 };
 
-var registerPatch = function (app, schema, resourceName) {
-    app.patch(`/${config.WEBAPINAME}/${config.VERSION}/${resourceName}/:id`, function (req, res) {
+var registerPatch = function (app, schema, route, resource) {
+    app.patch(`/${route}/:id`, function (req, res) {
         var patchObject = req.body;
         var query = patchObject.query;
         var id = req.params.id;
         var findBy = { _id: new ObjectId(id) };
         var arrayFilters = mongooseFindBy(schema, query, patchObject);
 
-        app[resourceName].findOneAndUpdate(findBy, patchObject, { arrayFilters: arrayFilters, new: true }, (err, resource) => {
+        app[resource].findOneAndUpdate(findBy, patchObject, { arrayFilters: arrayFilters, new: true }, (err, resource) => {
             console.log('err', err);
             if (err) {
                 return res.status(400).send({ msg: 'Update failed!' });
@@ -96,15 +93,7 @@ var mongooseFindBy = function (schema, query, patchObject) {
 };
 
 module.exports = function (app) {
-    app.use(morgan('dev'));
-    app.use(bodyParser.urlencoded({ 'extended': 'true' }));
-    app.use(bodyParser.json());
-    app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-    app.use(methodOverride());
-
-    mongoose.connect(`${config.CLUSTER}`);
-
-    routes.forEach(function (route) {
-        registerRoute(route, app);
+    models.forEach(function (model) {
+        registerRoute(model, app);
     });
 };

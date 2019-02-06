@@ -1,6 +1,13 @@
 
 module.exports =
 	{
+
+		"sectors": {
+
+		},
+		"routes":{
+			
+		},
 		"crag": {
 			"_id": {
 				"type": "Object",
