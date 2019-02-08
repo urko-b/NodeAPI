@@ -15,7 +15,7 @@ services:
       - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
       - WEBAPINAME=${WEBAPINAME}
-      - VERSION=${VERSION}   
+      - VERSION=${VERSION}
       - COLLECTIONS_SCHEMAS=${COLLECTIONS_SCHEMAS}
       - COLLECTION_NAME=${COLLECTION_NAME}
       - AUDIT_LOG=${AUDIT_LOG}
@@ -25,12 +25,12 @@ services:
       - /usr/src/app/node_modules
   mongodbs:
     container_name: mongodbs
-    image: mongo:3.6.12  
+    image: mongo:3.6.12
     command: mongod --port 27017
     ports:
       - 27017
     networks:
       - nodeapp-network
 networks:
-    nodeapp-network:
-      driver: bridge
+  nodeapp-network:
+    driver: bridge
