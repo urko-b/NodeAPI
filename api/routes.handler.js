@@ -8,6 +8,8 @@ const models = require('../models/model').routes;
 const dbSchema = require('../schemas/_cluster.schema');
 const ObjectId = mongoose.Types.ObjectId;
 
+var jsonpatch = require('fast-json-patch')
+
 
 var registerRoute = function (model, app) {
     var resource = model.resource;
@@ -15,7 +17,7 @@ var registerRoute = function (model, app) {
     var schema = dbSchema[modelName];
     var strict = model.strict;
     var routeName = model.routeName;
-    
+
     var route = app[resource] = restful.model(modelName, mongoose.Schema(schema, strict), modelName)
         .methods(model.methods)
         .updateOptions(model.updateOptions);
@@ -27,70 +29,32 @@ var registerRoute = function (model, app) {
 };
 
 var registerPatch = function (app, schema, route, resource) {
-    app.patch(`/${route}/:id`, function (req, res) {
-        var patchObject = req.body;
-        var query = patchObject.query;
+    app.patch(`${route}/:id`, function (req, res) {
+        var patches = req.body;
         var id = req.params.id;
-        var findBy = { _id: new ObjectId(id) };
-        var arrayFilters = mongooseFindBy(schema, query, patchObject);
 
-        app[resource].findOneAndUpdate(findBy, patchObject, { arrayFilters: arrayFilters, new: true }, (err, resource) => {
-            console.log('err', err);
-            if (err) {
-                return res.status(400).send({ msg: 'Update failed!' });
+        app[resource].findOne({ _id: new ObjectId(id) }, (err, doc) => {
+            var errors = jsonpatch.validate(patches, doc);
+            if (errors != undefined) {
+                var responseErrors = '';
+                if (Array.isArray(errors)) {
+                    for (var i = 0; i < errors.length; i++) {
+                        responseErrors += `Errors in${errors[i]} in ${patches[i]}`
+                    }
+                } else
+                    responseErrors = `${errors.name}: ${errors.message} --> ${JSON.parse(errors.operation)}`;
+
+                return res.status(400).send(responseErrors);
             }
-            return res.status(200).send(resource);
+
+            var documentPatched = jsonpatch.applyPatch(doc, patches, true);
+            app[resource].updateOne({ _id: new ObjectId(id) }, { $set: documentPatched.newDocument }, { new: true }, (err, newDoc) => {
+                return res.status(200).send(newDoc);
+            });
         });
     });
 };
 
-var mongooseFindBy = function (schema, query, patchObject) {
-    var arrayFilters = [];
-    delete patchObject.query;
-    if (query != undefined && query != null) {
-        query.split(',').forEach(function (queryField) {
-            var field = queryField.split('=')[0];
-            var value = queryField.split('=')[1];
-
-            if (field === 'id' || field === '_id' || field.split('.').includes('id') || field.split('.').includes('_id')) {
-                value = new ObjectId(value);
-            }
-
-            var newField = field;
-            for (const prop in patchObject) {
-                //console.log(`obj.${prop} = ${patchObject[prop]}`);
-                if (prop.split('.').length > 0) {
-                    newField = '';
-                    //si tiene un punto la propiedad que estamos modificando puede tratarse de un array
-                    //  si es un array, hacemos un for sobre todos los . que haya, porque puede ser 
-                    //  un update a una propiedad anidada
-                    var subdocumentoProp = prop.split('.');
-                    subdocumentoProp.forEach(function (element, index) {
-                        if (index == subdocumentoProp.length) {
-                            return;
-                        }
-
-                        if (index > 0 && index < subdocumentoProp.length) {
-                            newField += '.';
-                        }
-                        if (Array.isArray(schema[prop.split('.')[0]])) {
-                            newField += `${element}.$[${element}]`;
-                            //patchObject[prop] = `${patchObject[prop].split('.')[0]}.$.${patchObject[prop].split('.')[1]}`
-                        }
-                        //if index %
-                    });
-
-                }
-            }
-            console.log('newField', newField);
-
-            var objectToPush = {};
-            objectToPush[newField] = value;
-            arrayFilters.push(objectToPush);
-        });
-    }
-    return arrayFilters;
-};
 
 module.exports = function (app) {
     models.forEach(function (model) {

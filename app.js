@@ -10,8 +10,10 @@ var morgan = require('morgan');
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ 'extended': 'true' }));
-app.use(bodyParser.json());
+//app.use(bodyParser.json({ type: 'application/*+json' }))
 app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+app.use(bodyParser.json({'extended': 'true', type: 'application/json-patch'}));
+app.use(bodyParser.json());
 app.use(methodOverride());
 
 
