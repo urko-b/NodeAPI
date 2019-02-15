@@ -18,9 +18,35 @@ var registerRoute = function (model, app) {
     var strict = model.strict;
     var routeName = model.routeName;
 
-    var route = app[resource] = restful.model(modelName, mongoose.Schema(schema, strict), modelName)
+    var mongooseSchema = mongoose.Schema(schema, strict);
+    var route = app[resource] = restful.model(modelName, mongooseSchema, modelName)
         .methods(model.methods)
         .updateOptions(model.updateOptions);
+
+
+    // //Validaciones de los objetos recibidos y tal, antes de ejecutar el método
+    // route.pre('save', function (next) {
+    //     if (foo()) {
+    //         console.log('calling next!');
+    //           // `return next();` will make sure the rest of this function doesn't run
+    //           /*return*/ next();
+    //     }
+    //     // Unless you comment out the `return` above, 'after next' will print
+    //     console.log('after next');
+    // });
+
+    var handleE11000 = function (error, res, next) {
+        if (error.name === 'MongoError' && error.code === 11000) {
+            next(new Error('There was a duplicate key error'));
+        } else {
+            next();
+        }
+    };
+    
+    mongooseSchema.post('save', handleE11000);
+    mongooseSchema.post('update', handleE11000);
+    mongooseSchema.post('findOneAndUpdate', handleE11000);
+    mongooseSchema.post('insertMany', handleE11000);
 
     route.register(app, routeName);
     if (model.methods.includes('patch')) {
@@ -41,8 +67,9 @@ var registerPatch = function (app, schema, route, resource) {
                     for (var i = 0; i < errors.length; i++) {
                         responseErrors += `Errors in${errors[i]} in ${patches[i]}`
                     }
-                } else
+                } else {
                     responseErrors = `${errors.name}: ${errors.message} --> ${JSON.parse(errors.operation)}`;
+                }
 
                 return res.status(400).send(responseErrors);
             }

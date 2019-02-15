@@ -1,13 +1,6 @@
 
 module.exports =
 	{
-
-		"sectors": {
-
-		},
-		"routes":{
-			
-		},
 		"crag": {
 			"_id": {
 				"type": "Object",
@@ -53,11 +46,12 @@ module.exports =
 						"required": true
 					}
 				},
-				"required": true
+				"required": false
 			},
 			"name": {
 				"type": "string",
-				"required": true
+				"required": true,
+				"unique": true
 			},
 			"description": {
 				"type": "string",
