@@ -6,3 +6,6 @@ an array fields filtering issue specified in this pull request that has not been
 https://github.com/baugarten/node-restful/pull/141
 
 
+## Set up
+After npm install run this command line:
+    npx patch-package
