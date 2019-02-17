@@ -1,1 +1,8 @@
 npm run start:watch  to run with nodemon
+
+
+patches folder contains a file that is needed to overwrite a npm function in node-resful in order to resolve 
+an array fields filtering issue specified in this pull request that has not been merge yet.
+https://github.com/baugarten/node-restful/pull/141
+
+
