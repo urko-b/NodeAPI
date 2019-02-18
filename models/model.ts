@@ -1,3 +1,4 @@
+import { SchemaHandler, CollectionSchema } from "schemas/schema.handler";
 
 
 export class Route {
@@ -23,8 +24,11 @@ export class Route {
 
 export class Models {
 
+    protected schemaHandler: SchemaHandler;
     constructor() {
         this.initModelsArray();
+        this.schemaHandler = new SchemaHandler();
+        this.schemaHandler.fillSchema();
     }
 
     private _routes: Array<any>;
@@ -33,14 +37,13 @@ export class Models {
     }
 
     private initModelsArray(): void {
-        const crag = 'crag';
-        const book = 'book';
-
         const apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`;
         let methods = ['get', 'post', 'put', 'patch', 'delete'];;
 
         this._routes = new Array<Route>();
-        this._routes.push(new Route(book, methods, book, `${apiRoute}/${book}`, { new: true }));
-        this._routes.push(new Route(crag, methods, crag, `${apiRoute}/${crag}`, { new: true }));
+        for (let collection of this.schemaHandler.collections) {
+            let collection_name: string = collection.collection_name;
+            this._routes.push(new Route(collection_name, methods, collection_name, `${apiRoute}/${collection_name}`, { new: true }));
+        }
     }
 }
