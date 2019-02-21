@@ -25,3 +25,8 @@ Version 1.0
 
 Roadmap - Version 1.1
 * Added security in the form of roles, CRUD rules and recordsets.
+
+ 
+## Set up
+After npm install run this command line:
+    npx patch-package
