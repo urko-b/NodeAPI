@@ -23,18 +23,25 @@ export class Route {
 }
 
 export class Models {
-
     protected schemaHandler: SchemaHandler.Handler;
-
-    constructor() {
-        this.schemaHandler = new SchemaHandler.Handler();
-        this.schemaHandler.fillSchema();
-        this.initModelsArray();
-    }
 
     private _routes: Array<any>;
     public get routes(): Array<any> {
         return this._routes;
+    }
+
+    constructor() {
+        this.schemaHandler = new SchemaHandler.Handler();
+    }
+
+    public async Init() {
+        try {
+            await this.schemaHandler.fillSchema()
+                .catch((err) => { throw Error(err) });
+            this.initModelsArray();
+        } catch (err) {
+            console.log('await fillschema error')
+        }
     }
 
     private initModelsArray(): void {
