@@ -36,11 +36,10 @@ export class Models {
 
     public async Init() {
         try {
-            await this.schemaHandler.fillSchema()
-                .catch((err) => { throw Error(err) });
+            await this.schemaHandler.fillSchema();
             this.initModelsArray();
-        } catch (err) {
-            console.log('await fillschema error')
+        } catch (error) {
+            throw error;
         }
     }
 
