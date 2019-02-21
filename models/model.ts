@@ -1,34 +1,35 @@
-import { SchemaHandler, CollectionSchema } from "schemas/schema.handler";
+import { SchemaHandler } from "../schemas/schema.handler";
 
 
 export class Route {
-    public resource: string;
-    public methods: Array<string>;
-    public strict: Object;
     public model: string;
-    public routeName: string;
+    public methods: Array<string>;
+    public route: string;
+    public strict: Object;
+    public mongooseSchema: string;
     public updateOptions: Object;
 
     /**
      *
      */
-    constructor(resource: string, methods: Array<string>, model: string, routeName: string, updateOptions?: Object, strict?: Object) {
-        this.resource = resource;
-        this.methods = methods;
-        this.strict = strict;
+    constructor(model: string, methods: Array<string>, route: string, mongooseSchema: string, updateOptions?: Object, strict?: Object) {
         this.model = model;
-        this.routeName = routeName;
+        this.methods = methods;
+        this.route = route;
+        this.strict = strict;
+        this.mongooseSchema = mongooseSchema;
         this.updateOptions = updateOptions;
     }
 }
 
 export class Models {
 
-    protected schemaHandler: SchemaHandler;
+    protected schemaHandler: SchemaHandler.Handler;
+
     constructor() {
-        this.initModelsArray();
-        this.schemaHandler = new SchemaHandler();
+        this.schemaHandler = new SchemaHandler.Handler();
         this.schemaHandler.fillSchema();
+        this.initModelsArray();
     }
 
     private _routes: Array<any>;
@@ -43,7 +44,8 @@ export class Models {
         this._routes = new Array<Route>();
         for (let collection of this.schemaHandler.collections) {
             let collection_name: string = collection.collection_name;
-            this._routes.push(new Route(collection_name, methods, collection_name, `${apiRoute}/${collection_name}`, { new: true }));
+            let collection_schema: string = collection.collection_schema;
+            this._routes.push(new Route(collection_name, methods, `${apiRoute}/${collection_name}`, collection_schema, { new: true }));
         }
     }
 }
