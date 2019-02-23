@@ -1,12 +1,24 @@
 {
-  "extends": ["tslint:latest", "tslint-config-prettier"],
+  "extends": [
+    "tslint:latest",
+    "tslint-config-prettier"
+  ],
   "rules": {
-    "quotemark": [true, "single"],
+    "quotemark": [
+      true,
+      "single"
+    ],
     "no-implicit-dependencies": false,
     "no-namespace": false,
-    "semicolon": [true, "always"],
+    "semicolon": [
+      true,
+      "always"
+    ],
     "member-ordering": false,
-    "variable-name": [true, "allow-snake-case"],
+    "variable-name": [
+      true,
+      "allow-snake-case"
+    ],
     "object-literal-sort-keys": false,
     "ordered-imports": false
   }
