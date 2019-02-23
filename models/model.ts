@@ -19,10 +19,13 @@ export class Route {
 }
 
 export class Models {
+  protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
+  protected methods = ['get', 'post', 'put', 'patch', 'delete']
+
   protected schemaHandler: SchemaHandler.Handler
 
-  private _routes: Array<any>
-  public get routes (): Array<any> {
+  private _routes: Array<Route>
+  public get routes (): Array<Route> {
     return this._routes
   }
 
@@ -40,14 +43,31 @@ export class Models {
   }
 
   private initModelsArray (): void {
-    const apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
-    let methods = ['get', 'post', 'put', 'patch', 'delete']
 
     this._routes = new Array<Route>()
     for (let collection of this.schemaHandler.collections) {
       let collection_name: string = collection.collection_name
       let collection_schema: string = collection.collection_schema
-      this._routes.push(new Route(collection_name, methods, `${apiRoute}/${collection_name}`, collection_schema, { new: true }))
+      this._routes.push(new Route(collection_name, this.methods, `${this.apiRoute}/${collection_name}`, collection_schema, { new: true }))
     }
+  }
+
+  public async syncSchema () {
+    let schemasToSync = await this.schemaHandler.syncSchemas()
+
+    if (schemasToSync.length <= 0) {
+      return []
+    }
+    let routes = new Array<Route>()
+
+    for (let collection of schemasToSync) {
+      let collectionName: string = collection.collection_name
+      let collectionSchema: string = collection.collection_schema
+      routes.push(new Route(collectionName, this.methods, `${this.apiRoute}/${collectionName}`, collectionSchema, { new: true }))
+    }
+
+    this._routes = this._routes.concat(routes)
+
+    return routes
   }
 }

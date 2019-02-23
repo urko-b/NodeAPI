@@ -109,6 +109,14 @@ export class SchemaHandler {
           }
         }
       }
+      await this.model
+        .insertMany(collectionSchema)
+        .then(doc => {
+          return doc
+        })
+        .catch(error => {
+          throw error
+        })
     }
   }
 
