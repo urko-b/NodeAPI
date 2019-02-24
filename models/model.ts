@@ -18,6 +18,11 @@ export class Route {
   }
 }
 
+export class SyncRoutes {
+  public routesToSync: Array<any>
+  public routesToUnsync: Array<any>
+}
+
 export class Models {
   protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
   protected methods = ['get', 'post', 'put', 'patch', 'delete']
@@ -52,22 +57,31 @@ export class Models {
     }
   }
 
-  public async syncSchema () {
-    let schemasToSync = await this.schemaHandler.syncSchemas()
+  public async syncRoutes (): Promise<SyncRoutes> {
+    let syncSchema = await this.schemaHandler.syncSchema()
 
-    if (schemasToSync.length <= 0) {
-      return []
+    let schemasToSync = syncSchema.schemasToSync
+    let schemasToUnsync = syncSchema.schemasToUnsync
+
+    let syncRoutes: SyncRoutes = new SyncRoutes()
+
+    if (schemasToSync.length > 0) {
+      let routes = new Array<Route>()
+
+      for (let collection of schemasToSync) {
+        let collectionName: string = collection.collection_name
+        let collectionSchema: string = collection.collection_schema
+        routes.push(new Route(collectionName, this.methods, `${this.apiRoute}/${collectionName}`, collectionSchema, { new: true }))
+      }
+
+      this._routes = this._routes.concat(routes)
+      syncRoutes.routesToSync = routes
     }
-    let routes = new Array<Route>()
 
-    for (let collection of schemasToSync) {
-      let collectionName: string = collection.collection_name
-      let collectionSchema: string = collection.collection_schema
-      routes.push(new Route(collectionName, this.methods, `${this.apiRoute}/${collectionName}`, collectionSchema, { new: true }))
+    if (schemasToUnsync.length > 0) {
+      syncRoutes.routesToUnsync = schemasToUnsync.map(s => s.collection_name)
     }
 
-    this._routes = this._routes.concat(routes)
-
-    return routes
+    return syncRoutes
   }
 }
