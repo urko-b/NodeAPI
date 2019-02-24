@@ -1,38 +1,96 @@
-import * as mongoose from 'mongoose';
+import * as mongoose from 'mongoose'
+import { compare } from 'fast-json-patch'
 
 export namespace SchemaHandler {
-    export class CollectionSchema {
-        public collection_name: string;
-        public collection_schema: string;
+  export class SyncSchema {
+    public schemasToSync: Array<any>
+    public schemasToUnsync: Array<any>
+  }
+
+  export class Handler {
+    public collections: Array<any>
+    protected schema: mongoose.Schema
+    protected model: mongoose.Model<any>
+
+    /**
+     *
+     */
+    constructor () {
+      this.collections = new Array<any>()
+      this.init()
     }
 
+    private init () {
+      this.schema = new mongoose.Schema({
+        collection_name: String,
+        collection_schema: String
+      })
 
-    export class Handler {
-
-        public collections: any;
-        protected schema: mongoose.Schema;
-
-        /**
-         *
-         */
-        constructor() {
-            this.collections = new Array<CollectionSchema>();
-        }
-
-        public async fillSchema() {
-            this.schema = new mongoose.Schema({
-                'collection_name': String,
-                'collection_schema': String
-            });
-
-            let model: mongoose.Model<any> = mongoose.model('CollectionSchemas', this.schema, 'CollectionSchemas');
-
-            await model.find({}).exec()
-                .then(doc => {
-                    this.collections = doc;
-                }).catch((error) => {
-                    throw error;
-                });
-        }
+      this.model = mongoose.model(
+        'CollectionSchemas',
+        this.schema,
+        'CollectionSchemas'
+      )
     }
+
+    public async fillSchema () {
+      await this.model
+        .find({})
+        .exec()
+        .then(doc => {
+          this.collections = doc
+        })
+        .catch(error => {
+          throw error
+        })
+    }
+
+    public async syncSchema () {
+      // Check what schemas arent in our array
+      let syncSchema: SyncSchema = await this.getSchemasToSync()
+      if (syncSchema.schemasToSync.length > 0) {
+        this.collections = this.collections.concat(syncSchema.schemasToSync)
+      }
+      if (syncSchema.schemasToUnsync.length > 0) {
+        for (let unsync of syncSchema.schemasToUnsync) {
+          for (let c of this.collections) {
+            if (unsync['collection_name'] === c['collection_name']) {
+              this.collections.splice(this.collections.indexOf(c), 1)
+            }
+          }
+        }
+      }
+
+      return syncSchema
+    }
+
+    private getSchemasToSync () {
+      return this.model
+        .find({})
+        .exec()
+        .then(schemas => {
+          let syncSchema: SyncSchema = new SyncSchema()
+          syncSchema.schemasToSync = schemas.filter(
+            this.comparer(this.collections)
+          )
+          syncSchema.schemasToUnsync = this.collections.filter(
+            this.comparer(schemas)
+          )
+          return syncSchema
+        })
+        .catch(error => {
+          throw error
+        })
+    }
+
+    private comparer (otherArray) {
+      return function (current) {
+        return (
+          otherArray.filter(function (other) {
+            return other['collection_name'] === current['collection_name']
+          }).length === 0
+        )
+      }
+    }
+  }
 }
