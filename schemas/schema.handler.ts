@@ -51,14 +51,9 @@ export namespace SchemaHandler {
       if (syncSchema.schemasToSync.length > 0) {
         this.collections = this.collections.concat(syncSchema.schemasToSync)
       }
+
       if (syncSchema.schemasToUnsync.length > 0) {
-        for (let unsync of syncSchema.schemasToUnsync) {
-          for (let c of this.collections) {
-            if (unsync['collection_name'] === c['collection_name']) {
-              this.collections.splice(this.collections.indexOf(c), 1)
-            }
-          }
-        }
+        this.removeCollections(syncSchema)
       }
 
       return syncSchema
@@ -90,6 +85,16 @@ export namespace SchemaHandler {
             return other['collection_name'] === current['collection_name']
           }).length === 0
         )
+      }
+    }
+
+    private removeCollections (syncSchema: SyncSchema) {
+      for (let unsync of syncSchema.schemasToUnsync) {
+        for (let c of this.collections) {
+          if (unsync['collection_name'] === c['collection_name']) {
+            this.collections.splice(this.collections.indexOf(c), 1)
+          }
+        }
       }
     }
   }
