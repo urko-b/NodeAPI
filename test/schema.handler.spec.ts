@@ -6,7 +6,7 @@ describe('Schema Handler Fill', () => {
   it('should fill the collections array', async () => {
     const handler = new SchemaHandler.Handler()
     await handler.fillSchema()
-    chai.assert(
+    return chai.assert(
       chai.expect(handler.collections).to.be.an('array').and.not.be.empty
     )
   })

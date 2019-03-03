@@ -5,20 +5,22 @@ restful.mongoose = mongoose
 
 import { Models, Route, SyncRoutes } from '../models/model'
 import * as patchHandler from './patch.handler'
-import { strict } from 'assert'
-import { stringify } from 'querystring'
+import { LogHandler, Log } from '../log/log.handler'
+import { ObjectID } from 'mongodb';
 
 export class RoutesHandler {
-  // protected app: express.Application
   private _app: express.Application
   public get app (): express.Application {
     return this._app
   }
   protected models: Models
+  protected logHandler: LogHandler
+  protected collaboratorId: string
 
   constructor (app: express.Application) {
     this._app = app
     this.models = new Models()
+    this.logHandler = new LogHandler(this._app)
   }
 
   public async initRoutes () {
@@ -36,23 +38,54 @@ export class RoutesHandler {
     }
   }
 
-  private registerRoute (model: Route) {
-    let resource: string = model.model
+  public registerRoute (model: Route) {
+    let collectionName: string = model.collectionName
     let schema: any = JSON.parse(model.mongooseSchema)
     let strict: object = model.strict
     let routeName: string = model.route
 
     let mongooseSchema = new mongoose.Schema(schema, strict)
-    let route = (this._app.route[resource] = restful
-      .model(resource, mongooseSchema, resource)
+    this.setPostSaveMiddleware(mongooseSchema, collectionName)
+
+    let route = (this._app.route[collectionName] = restful
+      .model(collectionName, mongooseSchema, collectionName)
       .methods(model.methods)
       .updateOptions(model.updateOptions))
+
+    route.before('post', (req, res, next) => {
+      let collaboratorId: string = req.header('collaboratorId')
+      this.collaboratorId = collaboratorId
+      next()
+    })
+    // route.before('put', this.setCollaboratorId)
+    // route.before('delete', this.setCollaboratorId)
+
     route.register(this._app, routeName)
+
     if (model.methods.includes('patch')) {
-      let patch = new patchHandler.PatchHandler(this._app, routeName, resource)
+      let patch = new patchHandler.PatchHandler(
+        this._app,
+        routeName,
+        collectionName
+      )
       patch.registerPatch()
     }
   }
+
+  private setPostSaveMiddleware (mongooseSchema: mongoose.Schema<any>, collectionName: string) {
+    mongooseSchema.post('save', async doc => {
+      let log: Log = new Log(
+        new ObjectID(this.collaboratorId),
+        'post',
+        collectionName,
+        null,
+        null,
+        doc.modifiedPaths().join(', ')
+      )
+      await this.logHandler.insertLog(log)
+    })
+  }
+
 
   public async syncRoutes () {
     let syncRoutes: SyncRoutes = await this.models.syncRoutes()
@@ -87,7 +120,7 @@ export class RoutesHandler {
     }
 
     this.registerRoutes(routesToSync)
-    return `Synched Routes: ${routesToSync.map(r => r.model).join()}`
+    return `Synched Routes: ${routesToSync.map(r => r.collectionName).join()}`
   }
 
   private unsynchedRoutes (routesToUnsync: Array<string>) {

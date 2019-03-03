@@ -1,15 +1,15 @@
 import { SchemaHandler } from '../schemas/schema.handler'
 
 export class Route {
-  public model: string
+  public collectionName: string
   public methods: Array<string>
   public route: string
   public strict: Object
   public mongooseSchema: string
   public updateOptions: Object
 
-  constructor (model: string, methods: Array<string>, route: string, mongooseSchema: string, updateOptions?: Object, strict?: Object) {
-    this.model = model
+  constructor (collectionName: string, methods: Array<string>, route: string, mongooseSchema: string, updateOptions?: Object, strict?: Object) {
+    this.collectionName = collectionName
     this.methods = methods
     this.route = route
     this.strict = strict

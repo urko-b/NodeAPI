@@ -11,6 +11,8 @@ export namespace SchemaHandler {
     public collections: Array<any>
     protected schema: mongoose.Schema
     protected model: mongoose.Model<any>
+    protected readonly CollectionsSchemas: string = 'collections_schemas'
+    protected readonly collectionName: string = 'collection_name'
 
     /**
      *
@@ -27,9 +29,9 @@ export namespace SchemaHandler {
       })
 
       this.model = mongoose.model(
-        'CollectionSchemas',
+        this.CollectionsSchemas,
         this.schema,
-        'CollectionSchemas'
+        this.CollectionsSchemas
       )
     }
 
@@ -82,7 +84,7 @@ export namespace SchemaHandler {
       return function (current) {
         return (
           otherArray.filter(function (other) {
-            return other['collection_name'] === current['collection_name']
+            return other[this.collectionName] === current[this.collectionName]
           }).length === 0
         )
       }
@@ -91,7 +93,7 @@ export namespace SchemaHandler {
     private removeCollections (syncSchema: SyncSchema) {
       for (let unsync of syncSchema.schemasToUnsync) {
         for (let c of this.collections) {
-          if (unsync['collection_name'] === c['collection_name']) {
+          if (unsync[this.collectionName] === c[this.collectionName]) {
             this.collections.splice(this.collections.indexOf(c), 1)
           }
         }

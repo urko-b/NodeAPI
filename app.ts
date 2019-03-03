@@ -7,7 +7,7 @@ import { RoutesHandler } from './api/routes.handler'
 import { SyncHandler } from './api/sync.handler'
 
 export class App {
-  protected app: express.Application
+  public app: express.Application
   protected routesHandler: RoutesHandler
   protected syncHandler: SyncHandler
   protected port: string
@@ -15,15 +15,16 @@ export class App {
   constructor (port: string) {
     this.port = port
     this.app = express()
+  }
+
+  public init () {
     this.routesHandler = new RoutesHandler(this.app)
     this.syncHandler = new SyncHandler(this.routesHandler)
-
     this.initi18n()
     this.useMiddlewares()
     this.mountRoutes().catch(err => {
-      console.log(err)
+      console.warn(err)
     })
-
     this.syncHandler.syncSchemas()
   }
 
@@ -71,7 +72,7 @@ export class App {
   public Run () {
     this.app.listen(this.port, () => {
       console.log(
-        i18n.__('API REST running in') + ` http://localhost:${this.port}`
+        `API REST running in http://localhost:${this.port}`
       )
     })
   }

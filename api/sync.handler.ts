@@ -8,15 +8,21 @@ export class SyncHandler {
     this.routesHandler = routesHandler
   }
 
+  /**
+   * @api{get}/SyncSchema Sync the api router with the schemas collection
+   * @apiVersion 1.0.0
+   * @apiPermission Admin
+   */
   public syncSchemas () {
-    this.routesHandler.app.get(`${this.apiRoute}/SyncSchema`, async (req, res, next) => {
-      try {
-        let schemasSynched = await this.routesHandler.syncRoutes()
-        return res.status(200).send(schemasSynched)
-      } catch (error) {
-        return res.status(400).send(error)
+    this.routesHandler.app.get(`${this.apiRoute}/SyncSchema`,
+      async (req, res, next) => {
+        try {
+          let schemasSynched = await this.routesHandler.syncRoutes()
+          return res.status(200).send(schemasSynched)
+        } catch (error) {
+          return res.status(400).send(error)
+        }
       }
-    })
+    )
   }
-
 }
