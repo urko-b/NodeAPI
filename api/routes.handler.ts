@@ -6,7 +6,6 @@ restful.mongoose = mongoose
 import { Models, Route, SyncRoutes } from '../models/model'
 import * as patchHandler from './patch.handler'
 import { LogHandler, Log } from '../log/log.handler'
-import { ObjectID } from 'mongodb';
 
 export class RoutesHandler {
   private _app: express.Application
@@ -44,8 +43,9 @@ export class RoutesHandler {
     let strict: object = model.strict
     let routeName: string = model.route
 
-    let mongooseSchema = new mongoose.Schema(schema, strict)
+    let mongooseSchema = new mongoose.Schema(schema, strict)    
     this.setPostSaveMiddleware(mongooseSchema, collectionName)
+    this.setPostRemoveMiddleware(mongooseSchema, collectionName)
 
     let route = (this._app.route[collectionName] = restful
       .model(collectionName, mongooseSchema, collectionName)
@@ -75,7 +75,7 @@ export class RoutesHandler {
   private setPostSaveMiddleware (mongooseSchema: mongoose.Schema<any>, collectionName: string) {
     mongooseSchema.post('save', async doc => {
       let log: Log = new Log(
-        new ObjectID(this.collaboratorId),
+        new mongoose.Types.ObjectId(this.collaboratorId),
         'post',
         collectionName,
         null,
@@ -84,6 +84,27 @@ export class RoutesHandler {
       )
       await this.logHandler.insertLog(log)
     })
+  }
+  
+  private setPostRemoveMiddleware(mongooseSchema: mongoose.Schema<any>, collectionName: string) {
+    mongooseSchema.post('remove', async doc => {
+      let log: Log = new Log(
+        new mongoose.Types.ObjectId(this.collaboratorId),
+        'remove',
+        collectionName,
+        null,
+        null,
+        doc.modifiedPaths().join(', ')
+      )
+      await this.logHandler.insertLog(log)
+    })
+  }
+
+  
+  private setCollaboratorId = (req, res, next) => {
+    let collaboratorId: string = req.header('collaboratorId')
+    this.collaboratorId = collaboratorId
+    next()
   }
 
 
