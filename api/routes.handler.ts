@@ -70,7 +70,6 @@ export class RoutesHandler {
 
   private setPostSaveMiddleware (mongooseSchema: mongoose.Schema<any>, collectionName: string) {
     mongooseSchema.post('save', async doc => {
-      console.log('doc', doc)
       let log: Log = new Log(
         new ObjectID(this.collaboratorId),
         'post',
@@ -79,12 +78,11 @@ export class RoutesHandler {
         null,
         doc.modifiedPaths().join(', ')
       )
-      console.log('log', log)
       await this.logHandler.insertOne(log)
     })
   }
 
-  private setCollaboratorId (req, res, next) {
+  private setCollaboratorId = (req, res, next) => {
     let collaboratorId: string = req.header('collaboratorId')
     this.collaboratorId = collaboratorId
     next()
