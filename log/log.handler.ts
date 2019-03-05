@@ -82,13 +82,13 @@ export class LogHandler {
       })
   }
 
-  public async findByIdAndDelete(id: ObjectId) {
-    return await this.model.findByIdAndDelete(id)
+  public async findOneAndDelete(filter: object) {
+    return await this.model.findOneAndDelete(filter)
       .exec()
-      .then(err => {
-        if (err !== undefined && err !== null) {
-          console.warn('log error', err)
-          throw err
+      .then((doc) => {
+        if (doc === undefined && doc === null) {
+          console.warn('log error')
+          throw new Error('Error while remove log')
         }
         return true
       })
