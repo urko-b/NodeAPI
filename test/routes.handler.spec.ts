@@ -6,7 +6,7 @@ import * as server from '../app'
 import { Route } from '../models/model'
 import { RoutesHandler } from '../api/routes.handler'
 
-describe('API Request', () => {
+describe('API Generic Entity Request', () => {
   it('should return OK Tree Get request', done => {
     chai.use(chaiHttp)
 

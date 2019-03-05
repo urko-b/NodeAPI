@@ -14,7 +14,7 @@ export class Log {
   /**
    *
    */
-  constructor (collaborator_id?: ObjectId, operation?: String, collection_name?: String,
+  constructor(collaborator_id?: ObjectId, operation?: String, collection_name?: String,
     payload?: String, old_value?: String, new_value?: String) {
     this.collaborator_id = collaborator_id
     this.operation = operation
@@ -35,16 +35,18 @@ export class LogHandler {
   /**
    *
    */
-  constructor (app: express.Application) {
+  constructor(app: express.Application) {
     this.app = app
     this.init()
   }
 
-  private init () {
+  private init() {
     this.schema = new mongoose.Schema({
       collaborator_id: ObjectId,
-      date: {'type': Date,
-        'default': Date.now()},
+      date: {
+        'type': Date,
+        'default': Date.now()
+      },
       operation: String,
       collection_name: String,
       payload: String,
@@ -62,11 +64,37 @@ export class LogHandler {
   /**
    * insert log
    */
-  public async insertLog (log: Log) {
+  public async insertOne(log: Log) {
     await this.model.insertMany([log])
-    .catch(err => {
-      console.warn('log error', err)
-      throw err
-    })
+      .catch(err => {
+        console.warn('log error', err)
+        throw err
+      })
+  }
+
+  public async findOne(filter: object) {
+    return await this.model.findOne(filter)
+      .exec()
+      .then(doc => { return doc })
+      .catch(err => {
+        console.warn('log error', err)
+        throw err
+      })
+  }
+
+  public async findByIdAndDelete(id: ObjectId) {
+    return await this.model.findByIdAndDelete(id)
+      .exec()
+      .then(err => {
+        if (err !== undefined && err !== null) {
+          console.warn('log error', err)
+          throw err
+        }
+        return true
+      })
+      .catch(err => {
+        console.warn('exception log error', err)
+        throw err
+      })
   }
 }

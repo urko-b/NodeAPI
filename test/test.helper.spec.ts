@@ -8,7 +8,7 @@ before((done) => {
     if (connectionError) {
       done()
       return console.warn(
-        `Error al conectar a la base de datos: ${connectionError}`
+        `Error while connecting to database: ${connectionError}`
       )
     }
     console.log('Connected!')
@@ -18,4 +18,8 @@ before((done) => {
 
 afterEach(async () => {
   delete mongoose.connection.models['collections_schemas']
+})
+
+beforeEach(async () => {    
+  delete mongoose.connection.models['audit_log']
 })

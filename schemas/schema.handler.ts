@@ -43,6 +43,7 @@ export namespace SchemaHandler {
           this.collections = doc
         })
         .catch(error => {
+          console.error(error)
           throw error
         })
     }

@@ -1,6 +1,7 @@
 {
 	"API REST running in": "API REST running in",
+	"There was a duplicate key error": "There was a duplicate key error",
+	"Errors in": "Errors in",
 	"Cannot perform the operation at a path that does not exist": "Cannot perform the operation at a path that does not exist",
-	"OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/sectors/0/routes/0/a\",\"value\":\"22\"}": "OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/sectors/0/routes/0/a\",\"value\":\"22\"}",
-	"Cannot read property 'sectors' of null": "Cannot read property 'sectors' of null"
+	"The secret provided is not valid": "The secret provided is not valid"
 }

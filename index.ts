@@ -6,8 +6,8 @@ dotenv.config()
 
 mongoose.connect(process.env.DB, connectionError => {
   if (connectionError) {
-    return console.log(
-      `Unexpected error during database connection: ${connectionError}`
+    return console.error(
+      `Error al conectar a la base de datos: ${connectionError}`
     )
   }
 
