@@ -75,13 +75,12 @@ export class RoutesHandler {
       if (data.operationType !== 'update' && data.operationType !== 'delete') {
         return;
       }
-      data.fullDocument
       let log: Log = new Log(
         new ObjectID(this.collaboratorId),
         data.operationType,
         collectionName,
         JSON.stringify(data),
-        JSON.stringify(data.fullDocument),
+        null,
         JSON.stringify(data.updateDescription),
       )
       await this.logHandler.insertOne(log)
