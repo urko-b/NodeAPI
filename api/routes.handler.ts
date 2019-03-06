@@ -45,7 +45,6 @@ export class RoutesHandler {
     let routeName: string = model.route
 
     let mongooseSchema = new mongoose.Schema(schema, strict)
-    this.setPostSaveMiddleware(mongooseSchema, collectionName)
 
     let route = (this._app.route[collectionName] = restful
       .model(collectionName, mongooseSchema, collectionName)
@@ -57,6 +56,8 @@ export class RoutesHandler {
     route.before('delete', this.setCollaboratorId)
 
     route.register(this._app, routeName)
+    
+    this.listenOnChanges(collectionName)
 
     if (model.methods.includes('patch')) {
       let patch = new patchHandler.PatchHandler(
@@ -68,18 +69,23 @@ export class RoutesHandler {
     }
   }
 
-  private setPostSaveMiddleware (mongooseSchema: mongoose.Schema<any>, collectionName: string) {
-    mongooseSchema.post('save', async doc => {
+  private listenOnChanges (collectionName: string) {
+    mongoose.model(collectionName).collection.watch().on('change', async (data) => {
+      // Ignore non-updates
+      if (data.operationType !== 'update' && data.operationType !== 'delete') {
+        return;
+      }
+      data.fullDocument
       let log: Log = new Log(
         new ObjectID(this.collaboratorId),
-        'post',
+        data.operationType,
         collectionName,
-        null,
-        null,
-        doc.modifiedPaths().join(', ')
+        JSON.stringify(data),
+        JSON.stringify(data.fullDocument),
+        JSON.stringify(data.updateDescription),
       )
       await this.logHandler.insertOne(log)
-    })
+    });
   }
 
   private setCollaboratorId = (req, res, next) => {
