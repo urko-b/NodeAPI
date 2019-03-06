@@ -1,5 +1,4 @@
 import * as mongoose from 'mongoose'
-import { compare } from 'fast-json-patch'
 
 export namespace SchemaHandler {
   export class SyncSchema {
