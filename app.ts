@@ -5,12 +5,14 @@ import * as morgan from 'morgan'
 import * as i18n from 'i18n'
 import { RoutesHandler } from './api/routes.handler'
 import { SyncHandler } from './api/sync.handler'
+import { AuthController } from './controllers/auth.controller';
 
 export class App {
   public app: express.Application
   protected routesHandler: RoutesHandler
   protected syncHandler: SyncHandler
   protected port: string
+  protected authController: AuthController
 
   constructor (port: string) {
     this.port = port
@@ -20,6 +22,8 @@ export class App {
   public init () {
     this.routesHandler = new RoutesHandler(this.app)
     this.syncHandler = new SyncHandler(this.routesHandler)
+    this.authController = new AuthController()
+    
     this.initi18n()
     this.useMiddlewares()
     this.mountRoutes().catch(err => {
@@ -46,6 +50,8 @@ export class App {
     this.app.use(bodyParser.json({ type: 'application/json-patch' }))
     this.app.use(bodyParser.json())
     this.app.use(methodOverride())
+    
+    this.app.use(this.secretMiddleware)
 
     this.app.use(i18n.init)
     this.app.use(this.i18nSetLocaleMiddleware)
@@ -58,6 +64,22 @@ export class App {
     ) {
       res.setLocale(req.cookies['language-cookie'])
     }
+    next()
+  }
+
+  private secretMiddleware = async (req, res, next) => {
+    let secret: string = req.header('secret')
+    if (secret === undefined) {
+      res.status(401)
+      next('Unauthorized')
+    }
+
+    let isSecretValid: boolean = await this.authController.isSecretValid(secret)
+    if (isSecretValid === false) {
+      res.status(401)
+      next('The secret provided is not valid')
+    }
+
     next()
   }
 
