@@ -1,55 +1,66 @@
-import 'mocha'
 import * as chai from 'chai'
 import chaiHttp = require('chai-http')
+import * as dotenv from 'dotenv'
+import 'mocha'
 import httpMocks = require('node-mocks-http')
 
+import bodyParser = require('body-parser')
+import { RoutesHandler } from '../api/routes.handler'
 import * as server from '../app'
 import { Route } from '../models/model.handler'
-import { RoutesHandler } from '../api/routes.handler'
 
-describe('API Generic Entity Request', () => {
-  it('should return OK Tree Get request', done => {
-    chai.use(chaiHttp)
-    let app = new server.App(process.env.PORT)
-    let routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    let model: Route = new Route(
+let ashTreeId: string
+describe('API Generic Entity: Request http verbs', () => {
+  chai.use(chaiHttp)
+  dotenv.config()
+
+  const app: server.App = new server.App(process.env.PORT)
+  app.app.use(bodyParser.urlencoded({ extended: true }))
+  app.app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
+  app.app.use(bodyParser.json({ type: 'application/json-patch' }))
+  app.app.use(bodyParser.json())
+
+  it('should return OK Tree Get request', async () => {
+    const model: Route = new Route(
       'tree',
-      ['get', 'post'],
+      ['get', 'post', 'delete', 'patch'],
       '/tree',
       '{"name": { "type":"String","required": true }}',
       { new: true }
     )
 
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
     routesHandler.registerRoute(model)
-    app.Run()
 
-    chai
+    const getResult = await chai.request(app.app).get(`/tree`)
+    chai.expect(getResult).to.have.status(200)
+  })
+
+  it('should post ash tree', async () => {
+    const postResult = await chai
       .request(app.app)
-      .get(`/tree`)
-      .end((err, res) => {
-        chai
-          .expect(res)
-          .to.have.status(200)
+      .post('/tree')
+      .set('content-type', 'application/json')
+      .send('{ "name": "ash tree" }')
 
-        done()
-      })
+    chai.expect(postResult).to.have.status(201)
+
+    ashTreeId = postResult.body._id
   })
 
-  it('should set collaboratorId property from collaboratorId request header', done => {
-    chai.use(chaiHttp)
-    let app = new server.App(process.env.PORT)
-    let routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    let collaboratorId: string = '5c839d1063bad113d8b5aaed'
+  it('should patch name field on ash tree entity', async () => {
+    const patchResult = await chai
+      .request(app.app)
+      .patch(`/tree/${ashTreeId}`)
+      .set('content-type', 'application/json')
+      .send('[{"op": "replace", "path": "/name", "value": "oak"}]')
 
-    let req = httpMocks.createRequest({
-      method: 'GET',
-      url: '/tree',
-      headers: { 'collaboratorId': collaboratorId }
-    })
-    let next = (() => { return true })
-    routesHandler.setCollaboratorId(req, {}, next)
-    chai.expect(routesHandler.collaboratorId).is.equal(collaboratorId)
-    done()
+    chai.expect(patchResult).to.have.status(200)
   })
 
+  it('should remove ash tree from tree entity', async () => {
+    const patchResult = await chai.request(app.app).delete(`/tree/${ashTreeId}`)
+
+    chai.expect(patchResult).to.have.status(204)
+  })
 })

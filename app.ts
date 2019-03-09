@@ -1,8 +1,8 @@
-import * as express from 'express'
 import * as bodyParser from 'body-parser'
+import * as express from 'express'
+import * as i18n from 'i18n'
 import * as methodOverride from 'method-override'
 import * as morgan from 'morgan'
-import * as i18n from 'i18n'
 import { RoutesHandler } from './api/routes.handler'
 import { SyncHandler } from './api/sync.handler'
 import { AuthController } from './controllers/auth.controller'
@@ -14,12 +14,12 @@ export class App {
   protected port: string
   protected authController: AuthController
 
-  constructor (port: string) {
+  constructor(port: string) {
     this.port = port
     this.app = express()
   }
 
-  public init () {
+  public init() {
     this.routesHandler = new RoutesHandler(this.app)
     this.syncHandler = new SyncHandler(this.routesHandler)
     this.authController = new AuthController()
@@ -32,7 +32,13 @@ export class App {
     this.syncHandler.syncSchemas()
   }
 
-  private initi18n (): void {
+  public Run = () => {
+    this.app.listen(this.port, () => {
+      console.info(`API REST running in http://localhost:${this.port}`)
+    })
+  }
+
+  private initi18n(): void {
     i18n.configure({
       locales: ['en', 'es', 'fr', 'es', 'pt', 'de'],
       cookie: 'language-cookie',
@@ -40,12 +46,11 @@ export class App {
     })
   }
 
-  private useMiddlewares (): void {
+  private useMiddlewares(): void {
     this.app.use(morgan('dev'))
-    this.app.use(bodyParser.urlencoded({ extended: true }))
-    this.app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
-    this.app.use(bodyParser.json({ type: 'application/json-patch' }))
-    this.app.use(bodyParser.json())
+
+    this.useBodyParser()
+
     this.app.use(methodOverride())
 
     this.app.use(this.tokenMiddleware)
@@ -54,7 +59,14 @@ export class App {
     this.app.use(this.i18nSetLocaleMiddleware)
   }
 
-  private i18nSetLocaleMiddleware (req, res, next) {
+  private useBodyParser() {
+    this.app.use(bodyParser.urlencoded({ extended: true }))
+    this.app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
+    this.app.use(bodyParser.json({ type: 'application/json-patch' }))
+    this.app.use(bodyParser.json())
+  }
+
+  private i18nSetLocaleMiddleware(req, res, next) {
     if (
       req.cookies !== undefined &&
       req.cookies['language-cookie'] !== undefined
@@ -65,13 +77,15 @@ export class App {
   }
 
   private tokenMiddleware = async (req, res, next) => {
-    let secret: string = req.header('token')
+    const secret: string = req.header('token')
     if (secret === undefined) {
       res.status(401)
       next('Unauthorized')
     }
 
-    let isSecretValid: boolean = await this.authController.isTokenValid(secret)
+    const isSecretValid: boolean = await this.authController.isTokenValid(
+      secret
+    )
     if (isSecretValid === false) {
       res.status(401)
       next('The secret provided is not valid')
@@ -80,19 +94,11 @@ export class App {
     next()
   }
 
-  private async mountRoutes () {
+  private async mountRoutes() {
     try {
-      await this.routesHandler.initRoutes()
+      await this.routesHandler.init()
     } catch (error) {
       console.error('Unexpected error occurred in mountRoutes()', error)
     }
-  }
-
-  public Run () {
-    this.app.listen(this.port, () => {
-      console.info(
-        `API REST running in http://localhost:${this.port}`
-      )
-    })
   }
 }
