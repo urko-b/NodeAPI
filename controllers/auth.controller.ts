@@ -1,32 +1,32 @@
 
-
 import * as mongoose from 'mongoose'
 export class AuthController {
 
   protected schema: mongoose.Schema
   protected model: mongoose.Model<any>
-  private readonly Secrets: string = 'secrets'
+  private readonly SystemTokens: string = 'system_tokens'
+
   /**
    *
    */
-  constructor() {
+  constructor () {
     this.init()
   }
 
-  private init() {
+  private init () {
     this.schema = new mongoose.Schema({
       'name': String,
-      'secret': String
+      'system_token' : String
     })
     this.model = mongoose.model(
-      this.Secrets,
+      this.SystemTokens,
       this.schema,
-      this.Secrets
+      this.SystemTokens
     )
   }
 
-  public async isSecretValid(secret: string) {
-    return await this.model.findOne({ 'secret': secret })
+  public async isTokenValid (token: string) {
+    return this.model.findOne({ 'system_token': token })
       .exec()
       .then((doc) => {
         if (doc === undefined || doc === null) {
@@ -40,7 +40,5 @@ export class AuthController {
         throw err
       })
   }
-
-
 
 }

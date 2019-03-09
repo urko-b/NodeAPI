@@ -3,10 +3,9 @@ import * as mongoose from 'mongoose'
 import * as restful from 'node-restful'
 restful.mongoose = mongoose
 
-import { Models, Route, SyncRoutes } from '../models/model'
+import { Models, Route, SyncRoutes } from '../models/model.handler'
 import * as patchHandler from './patch.handler'
 import { LogHandler, Log } from '../log/log.handler'
-import { ObjectID, ObjectId } from 'bson'
 
 export class RoutesHandler {
   private _app: express.Application
@@ -15,7 +14,11 @@ export class RoutesHandler {
   }
   protected models: Models
   protected logHandler: LogHandler
-  protected collaboratorId
+
+  private _collaboratorId: string
+  public get collaboratorId (): string {
+    return this._collaboratorId
+  }
 
   constructor (app: express.Application) {
     this._app = app
@@ -56,7 +59,7 @@ export class RoutesHandler {
     route.before('delete', this.setCollaboratorId)
 
     route.register(this._app, routeName)
-    
+
     this.listenOnChanges(collectionName)
 
     if (model.methods.includes('patch')) {
@@ -70,26 +73,29 @@ export class RoutesHandler {
   }
 
   private listenOnChanges (collectionName: string) {
-    mongoose.model(collectionName).collection.watch().on('change', async (data) => {
-      // Ignore non-updates
-      if (data.operationType !== 'update' && data.operationType !== 'delete') {
-        return;
-      }
-      let log: Log = new Log(
-        new ObjectID(this.collaboratorId),
-        data.operationType,
-        collectionName,
-        JSON.stringify(data),
-        null,
-        JSON.stringify(data.updateDescription),
-      )
-      await this.logHandler.insertOne(log)
-    });
+    mongoose
+      .model(collectionName)
+      .collection.watch()
+      .on('change', async data => {
+        if (data.operationType !== 'update' && data.operationType !== 'delete') {
+          return
+        }
+
+        let log: Log = new Log(
+          new mongoose.Types.ObjectId(this._collaboratorId),
+          data.operationType,
+          collectionName,
+          JSON.stringify(data),
+          null,
+          JSON.stringify(data.updateDescription)
+        )
+        await this.logHandler.insertOne(log)
+      })
   }
 
-  private setCollaboratorId = (req, res, next) => {
+  public setCollaboratorId = (req, res, next) => {
     let collaboratorId: string = req.header('collaboratorId')
-    this.collaboratorId = collaboratorId
+    this._collaboratorId = collaboratorId
     next()
   }
 

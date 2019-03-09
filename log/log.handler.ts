@@ -14,7 +14,7 @@ export class Log {
   /**
    *
    */
-  constructor(collaborator_id?: ObjectId, operation?: String, collection_name?: String,
+  constructor (collaborator_id?: ObjectId, operation?: String, collection_name?: String,
     payload?: String, old_value?: String, new_value?: String) {
     this.collaborator_id = collaborator_id
     this.operation = operation
@@ -35,12 +35,12 @@ export class LogHandler {
   /**
    *
    */
-  constructor(app: express.Application) {
+  constructor (app: express.Application) {
     this.app = app
     this.init()
   }
 
-  private init() {
+  private init () {
     this.schema = new mongoose.Schema({
       collaborator_id: ObjectId,
       date: {
@@ -64,7 +64,7 @@ export class LogHandler {
   /**
    * insert log
    */
-  public async insertOne(log: Log) {
+  public async insertOne (log: Log) {
     await this.model.insertMany([log])
       .catch(err => {
         console.warn('log error', err)
@@ -72,8 +72,8 @@ export class LogHandler {
       })
   }
 
-  public async findOne(filter: object) {
-    return await this.model.findOne(filter)
+  public async findOne (filter: object) {
+    return this.model.findOne(filter)
       .exec()
       .then(doc => { return doc })
       .catch(err => {
@@ -82,8 +82,8 @@ export class LogHandler {
       })
   }
 
-  public async findOneAndDelete(filter: object) {
-    return await this.model.findOneAndDelete(filter)
+  public async findOneAndDelete (filter: object) {
+    return this.model.findOneAndDelete(filter)
       .exec()
       .then((doc) => {
         if (doc === undefined && doc === null) {
