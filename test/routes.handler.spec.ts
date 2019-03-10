@@ -2,7 +2,6 @@ import * as chai from 'chai'
 import chaiHttp = require('chai-http')
 import * as dotenv from 'dotenv'
 import 'mocha'
-import httpMocks = require('node-mocks-http')
 
 import bodyParser = require('body-parser')
 import { RoutesHandler } from '../api/routes.handler'
