@@ -21,6 +21,7 @@ export class SyncHandler {
           const schemasSynched = await this.routesHandler.syncRoutes()
           return res.status(200).send(schemasSynched)
         } catch (error) {
+          console.error('error', error)
           return res.status(400).send(error)
         }
       }

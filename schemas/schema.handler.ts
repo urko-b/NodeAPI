@@ -75,17 +75,17 @@ export class SchemaHandler {
       })
   }
 
-  private comparer(otherArray) {
+  private comparer = otherArray => {
     return current => {
       return (
-        otherArray.filter(function(other) {
+        otherArray.filter(other => {
           return other[this.collectionName] === current[this.collectionName]
         }).length === 0
       )
     }
   }
 
-  private removeCollections(syncSchema: SyncSchema) {
+  private removeCollections = (syncSchema: SyncSchema) => {
     for (const unsync of syncSchema.schemasToUnsync) {
       for (const c of this.collections) {
         if (unsync[this.collectionName] === c[this.collectionName]) {
