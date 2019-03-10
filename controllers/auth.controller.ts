@@ -1,22 +1,13 @@
-
 import * as mongoose from 'mongoose'
 export class AuthController {
-
   protected schema: mongoose.Schema
   protected model: mongoose.Model<any>
   private readonly SystemTokens: string = 'system_tokens'
 
-  /**
-   *
-   */
-  constructor () {
-    this.init()
-  }
-
-  private init () {
+  public init() {
     this.schema = new mongoose.Schema({
-      'name': String,
-      'system_token' : String
+      name: String,
+      system_token: String
     })
     this.model = mongoose.model(
       this.SystemTokens,
@@ -25,10 +16,11 @@ export class AuthController {
     )
   }
 
-  public async isTokenValid (token: string) {
-    return this.model.findOne({ 'system_token': token })
+  public async isTokenValid(token: string) {
+    return this.model
+      .findOne({ system_token: token })
       .exec()
-      .then((doc) => {
+      .then(doc => {
         if (doc === undefined || doc === null) {
           return false
         }
@@ -40,5 +32,4 @@ export class AuthController {
         throw err
       })
   }
-
 }

@@ -1,13 +1,24 @@
 import * as chai from 'chai'
 import 'mocha'
-import { SchemaHandler } from '../schemas/schema.handler'
+import { SchemaHandler, SyncSchema } from '../schemas/schema.module'
 
 describe('Schema Handler Fill', () => {
+  const handler = new SchemaHandler()
   it('should fill the collections array', async () => {
-    const handler = new SchemaHandler.Handler()
     await handler.fillSchema()
-    return chai.assert(
+    chai.assert(
       chai.expect(handler.collections).to.be.an('array').and.not.be.empty
     )
   })
+
+  // it('should add new model and routes', async () => {
+  //   await handler.syncSchema()
+  //   chai.assert(chai.expect(this.handler.collections.birds).to.be.undefined)
+  // })
+
+  // it('should remove model and routes', async () => {
+  //   await handler.syncSchema()
+
+  //   chai.assert(chai.expect(this.handler.collections.birds).to.be.undefined)
+  // })
 })

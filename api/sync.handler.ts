@@ -4,7 +4,7 @@ export class SyncHandler {
   protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
   protected routesHandler: RoutesHandler
 
-  constructor (routesHandler: RoutesHandler) {
+  constructor(routesHandler: RoutesHandler) {
     this.routesHandler = routesHandler
   }
 
@@ -13,11 +13,12 @@ export class SyncHandler {
    * @apiVersion 1.0.0
    * @apiPermission Admin
    */
-  public syncSchemas () {
-    this.routesHandler.app.get(`${this.apiRoute}/SyncSchema`,
+  public syncSchemas() {
+    this.routesHandler.app.get(
+      `${this.apiRoute}/SyncSchema`,
       async (req, res, next) => {
         try {
-          let schemasSynched = await this.routesHandler.syncRoutes()
+          const schemasSynched = await this.routesHandler.syncRoutes()
           return res.status(200).send(schemasSynched)
         } catch (error) {
           return res.status(400).send(error)

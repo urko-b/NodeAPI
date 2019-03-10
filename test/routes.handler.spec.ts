@@ -7,7 +7,7 @@ import httpMocks = require('node-mocks-http')
 import bodyParser = require('body-parser')
 import { RoutesHandler } from '../api/routes.handler'
 import * as server from '../app'
-import { Route } from '../models/model.handler'
+import { Route } from '../models/model.module'
 
 let ashTreeId: string
 describe('API Generic Entity: Request http verbs', () => {

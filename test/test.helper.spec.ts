@@ -1,8 +1,8 @@
-import * as mongoose from 'mongoose'
 import * as dotenv from 'dotenv'
+import * as mongoose from 'mongoose'
 
 dotenv.config()
-before((done) => {
+before(done => {
   // Called hooks which runs before something.
   mongoose.connect(process.env.DB, connectionError => {
     if (connectionError) {
@@ -17,9 +17,9 @@ before((done) => {
 })
 
 afterEach(async () => {
-  delete mongoose.connection.models['collections_schemas']
+  delete mongoose.connection.models.collections_schemas
 })
 
-beforeEach(async () => {    
-  delete mongoose.connection.models['audit_log']
+beforeEach(async () => {
+  delete mongoose.connection.models.audit_log
 })

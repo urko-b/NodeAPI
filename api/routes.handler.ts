@@ -3,8 +3,8 @@ import * as mongoose from 'mongoose'
 import * as restful from 'node-restful'
 restful.mongoose = mongoose
 
-import { Log, LogHandler } from '../log/log.handler'
-import { Models, Route, SyncRoutes } from '../models/model.handler'
+import { Log, LogHandler } from '../log/log.module'
+import { Models, Route, SyncRoutes } from '../models/model.module'
 import * as patchHandler from './patch.handler'
 
 export class RoutesHandler {
@@ -25,7 +25,7 @@ export class RoutesHandler {
 
   public async init() {
     try {
-      await this.models.Init()
+      await this.models.init()
       this.registerRoutes(this.models.routes)
     } catch (error) {
       throw error

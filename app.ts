@@ -24,6 +24,7 @@ export class App {
     this.syncHandler = new SyncHandler(this.routesHandler)
     this.authController = new AuthController()
 
+    this.authController.init()
     this.initi18n()
     this.useMiddlewares()
     this.mountRoutes().catch(err => {
