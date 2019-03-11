@@ -25,12 +25,12 @@ export class PatchHandler {
 
         const errors = jsonpatch.validate(patches, doc)
         if (errors !== undefined) {
-          const responseErrors: string = this.handleJsonPatchError(
+          const responseErrors: object = this.handleJsonPatchError(
             errors,
             res,
             patches
           )
-          return res.status(400).send(res.__(responseErrors))
+          return res.status(400).send(responseErrors)
         }
 
         const documentPatched = jsonpatch.applyPatch(doc, patches, true)
@@ -51,11 +51,11 @@ export class PatchHandler {
     errors: jsonpatch.JsonPatchError,
     res: any,
     patches: any
-  ): string {
+  ): object {
     let responseErrors: string = ''
     if (Array.isArray(errors)) {
       for (let i: number = 0; i < errors.length; i++) {
-        responseErrors += res.__('Errors in') + ` ${errors[i]} in ${patches[i]}`
+        responseErrors += res.__('Errors in') + ` ${res.__(errors[i])} in ${res.__(patches[i])}`
       }
     } else {
       responseErrors =
@@ -63,6 +63,7 @@ export class PatchHandler {
         res.__(errors.message) +
         ` --> ${JSON.stringify(errors.operation)}`
     }
-    return responseErrors
+    
+    return {'errors': responseErrors}
   }
 }

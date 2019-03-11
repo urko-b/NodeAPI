@@ -3,5 +3,7 @@
 	"There was a duplicate key error": "There was a duplicate key error",
 	"Errors in": "Errors in",
 	"Cannot perform the operation at a path that does not exist": "Cannot perform the operation at a path that does not exist",
-	"The secret provided is not valid": "The secret provided is not valid"
+	"The secret provided is not valid": "The secret provided is not valid",
+	"Cannot read property 'a' of null": "Cannot read property 'a' of null",
+	"OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/a\",\"value\":\"wwwwww\"}": "OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/a\",\"value\":\"wwwwww\"}"
 }
