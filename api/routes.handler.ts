@@ -72,16 +72,13 @@ export class RoutesHandler {
     const synchedRoutes = this.synchedRoutes(routesToSync)
     const unsynchedRoutes = this.unsynchedRoutes(routesToUnsync)
 
-    let result: string
+    let result: Object = new Object()
     if (synchedRoutes !== '') {
-      result = synchedRoutes
+      result['synchedRoutes'] = synchedRoutes
     }
 
     if (unsynchedRoutes !== '') {
-      if (result !== '') {
-        result += '\n'
-      }
-      result += unsynchedRoutes
+      result['unsynchedRoutes'] = unsynchedRoutes
     }
     return result
   }
@@ -128,11 +125,11 @@ export class RoutesHandler {
       routesToSync === null ||
       routesToSync.length <= 0
     ) {
-      return 'Synched Routes: All up to date'
+      return 'All up to date'
     }
 
     this.registerRoutes(routesToSync)
-    return `Synched Routes: ${routesToSync.map(r => r.collectionName).join()}`
+    return `${routesToSync.map(r => r.collectionName).join()}`
   }
 
   private unsynchedRoutes(routesToUnsync: string[]) {
@@ -141,7 +138,7 @@ export class RoutesHandler {
       routesToUnsync === null ||
       routesToUnsync.length <= 0
     ) {
-      return 'Unsynched Routes: All up to date'
+      return 'All up to date'
     }
 
     for (const unsync of routesToUnsync) {
@@ -153,6 +150,6 @@ export class RoutesHandler {
       })
     }
 
-    return `Unsynched Routes: ${routesToUnsync.join()}`
+    return `${routesToUnsync.join()}`
   }
 }
