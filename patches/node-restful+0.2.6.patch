@@ -1,13 +1,7 @@
 diff --git a/node_modules/node-restful/lib/model.js b/node_modules/node-restful/lib/model.js
-index a1a3615..4bade20 100644
+index a1a3615..2e51266 100644
 --- a/node_modules/node-restful/lib/model.js
 +++ b/node_modules/node-restful/lib/model.js
-@@ -1,4 +1,4 @@
--var mongoose = require('mongoose'),
-+mongoose = require('mongoose'),
-     _ = require('underscore'),
-     Model = mongoose.Model,
-     handlers = require('./handlers');
 @@ -31,6 +31,7 @@ var methods = ['get', 'post', 'put', 'delete'], // All HTTP methods, PATCH not c
        'lt': query('lt'),
        'lte': query('lte'),
