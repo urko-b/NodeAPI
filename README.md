@@ -28,25 +28,27 @@ Roadmap - Version 1.1
 ----
 
 ## Post Install Set up
-After npm install run this command line:*
+**After npm install run this command line:**
 ```sh
 npx patch-package
 ```
 ----
 
 ## Set Up Documentation
-*First, go to apidoc directory:*
+**First, go to apidoc directory:**
 ```sh
 cd apidoc
 ```
 
-*If you haven't installed apidoc yet then run:*
+**If you haven't installed apidoc yet then run:**
 ```sh
 npm install apidoc -g
 ```
 
-*Then run apidoc in console:*
+**Then run apidoc in console:**
 ```sh
 apidoc
 ```
+
+Now you should have a *doc* folder insidide *apidoc* folder. Then you can open index.html and see the documentation
 
