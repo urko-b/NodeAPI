@@ -25,8 +25,28 @@ Version 1.0
 
 Roadmap - Version 1.1
 * Added security in the form of roles, CRUD rules and recordsets.
+----
 
- 
-## Set up
-After npm install run this command line:
-    npx patch-package
+## Post Install Set up
+After npm install run this command line:*
+```sh
+npx patch-package
+```
+----
+
+## Set Up Documentation
+*First, go to apidoc directory:*
+```sh
+cd apidoc
+```
+
+*If you haven't installed apidoc yet then run:*
+```sh
+npm install apidoc -g
+```
+
+*Then run apidoc in console:*
+```sh
+apidoc
+```
+
