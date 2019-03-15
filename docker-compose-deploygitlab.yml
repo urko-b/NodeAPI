@@ -1,0 +1,33 @@
+version: "3"
+services:
+  restful_api:
+    build: .
+    env_file: ${ENV:-.env}
+    ports:
+      - ${RESTFUL_API_PUBLIC_PORT}:3000
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - MONGO_URL_TEST=${MONGO_URL_TEST}
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3000
+      - WEBAPINAME="restful_api"
+      - VERSION=1.0
+      - MONGO_DB_PORT=27017
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      - DB=mongodb://mongodb:${MONGO_DB_PORT}/${MONGO_DB_NAME}
+    networks:
+      - my-proxy-net
+    command: >
+      /bin/sh -c "
+        sleep 10;
+        if [ -z $DEBUG ]; then 
+          npm run start;
+        else 
+          npm run dev;
+        fi 
+        "
+
+networks:
+  my-proxy-net:
+    external:
+      name: custom_network

@@ -1,0 +1,7 @@
+---
+grupo-ovh:
+  hosts:
+    host-ovh:
+      ansible_host: 176.31.163.48
+      ansible_user: sevensense
+      ansible_port: 22
