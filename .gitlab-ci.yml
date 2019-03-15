@@ -13,13 +13,13 @@ unittest:
   variables:
     MONGO_SERVER: mongodb://mongo:27017
     MONGO_SERVER_TEST: mongodb://mongo:27017
-    DB: webapi_db_test
-    DB_TEST: webapi_db_test
+    DB_NAME: webapi_db_test
+    DB_NAME_TEST: webapi_db_test
     #SECRET_HASH: ${SECRET}
     #CI_ENV: test
     #CONFIG_DIR: ./config/
-    MONGO_URL: "${MONGO_SERVER}/${DB}"
-    MONGO_URL_TEST: "${MONGO_SERVER_TEST}/${DB_TEST}"
+    MONGO_URL: "${MONGO_SERVER}/${DB_NAME}"
+    DB: "${MONGO_SERVER_TEST}/${DB_NAME_TEST}"
   before_script:
     - apt-get update
     - apt-get -y upgrade
