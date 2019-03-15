@@ -21,10 +21,10 @@ unittest:
     MONGO_URL: "${MONGO_SERVER}/${DB}"
     MONGO_URL_TEST: "${MONGO_SERVER_TEST}/${DB_TEST}"
   before_script:
-    - apk update
-    - apk upgrade
-    - apk add git
-    - apk add python make
+    - apt-get update
+    - apt-get upgrade
+    - apt-get install git
+    - apt-get install python make
   script:
     - npm install -d
     - npm update
