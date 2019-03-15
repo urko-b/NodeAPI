@@ -11,7 +11,7 @@
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start_local": "node -r dotenv/config ./index.js",
     "dev": "nodemon --config nodemon.json --inspect=0.0.0.0:5858 -L index.js",
-    "test": "nodemon --exec mocha -timeout 10000  -r ts-node/register test/**/*.spec.ts"
+    "test": "mocha -timeout 10000  -r ts-node/register test/**/*.spec.ts"
   },
   "nodemonConfig": {
     "ignore": [
