@@ -33,7 +33,7 @@ unittest:
     - npm run lint
     - npm run test
   only:
-    - ci_cd
+    - feature/ci_cd
   cache:
     paths:
     - node_modules/
@@ -63,5 +63,5 @@ deploy-develop-ovh:
     - ansible-playbook deploy-with-replaced-vars.yaml --inventory inventory.yaml --limit=host-ovh
   environment: develop
   only:
-    - ci_cd
+    - feature/ci_cd
 #  when: manual

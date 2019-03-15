@@ -35,7 +35,7 @@
       git:
         repo: 'https://${GITLAB_DEPLOY_TOKEN_USER}:${GITLAB_DEPLOY_TOKEN_PASS}@gitlab.com/7sense.global/7sense_restful_api.git'
         dest: "{{ dest_repo_dir }}"
-        version: ci_cd
+        version: feature/ci_cd
         force: yes
 
 
