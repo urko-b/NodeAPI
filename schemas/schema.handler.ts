@@ -9,14 +9,23 @@ export class SchemaHandler {
   protected readonly collectionName: string = 'collection_name'
 
   /**
-   *
+   * @remarks
+   * Constructor, initializes collections array property
+   * and call private init function
    */
   constructor() {
     this.collections = new Array<any>()
     this.init()
   }
 
-  public async fillSchema() {
+  /**
+   * @remarks
+   * Makes a query to collections_schemas collection and
+   * fill collections array property with all the documents
+   * founded
+   *
+   */
+  public fillSchema = async () => {
     await this.model
       .find({})
       .exec()
@@ -29,8 +38,17 @@ export class SchemaHandler {
       })
   }
 
-  public async syncSchema() {
-    // Check what schemas arent in our array
+  /**
+   * @remarks
+   * Check what schemas arent in our array and add them.
+   * It also checks what schemas has been deleted
+   * from collections_schemas, if there are any
+   * it removes from collections array
+   *
+   * @returns An object of {@link SyncSchema} with collections
+   * to add and remove to our collections_schemas array
+   */
+  public syncSchema = async () => {
     const syncSchema: SyncSchema = await this.getSchemasToSync()
     if (syncSchema.schemasToSync.length > 0) {
       this.collections = this.collections.concat(syncSchema.schemasToSync)
@@ -43,20 +61,24 @@ export class SchemaHandler {
     return syncSchema
   }
 
-  private init() {
-    this.schema = new mongoose.Schema({
-      collection_name: String,
-      collection_schema: String
-    })
-
-    this.model = mongoose.model(
-      this.CollectionsSchemas,
-      this.schema,
-      this.CollectionsSchemas
-    )
+  /**
+   *
+   */
+  public removeCollections = (syncSchema: SyncSchema) => {
+    for (const unsync of syncSchema.schemasToUnsync) {
+      for (const c of this.collections) {
+        if (unsync[this.collectionName] === c[this.collectionName]) {
+          this.collections.splice(this.collections.indexOf(c), 1)
+        }
+      }
+    }
   }
 
-  private getSchemasToSync() {
+  /**
+   *
+   * @returns Object of {@link SyncSchema} with the collections to add/remove
+   */
+  public getSchemasToSync = async () => {
     return this.model
       .find({})
       .exec()
@@ -75,6 +97,27 @@ export class SchemaHandler {
       })
   }
 
+  /**
+   * @remarks
+   * Initializes mongoose model that represents
+   * collections_schemas collection
+   */
+  private init() {
+    this.schema = new mongoose.Schema({
+      collection_name: String,
+      collection_schema: String
+    })
+
+    this.model = mongoose.model(
+      this.CollectionsSchemas,
+      this.schema,
+      this.CollectionsSchemas
+    )
+  }
+
+  /**
+   *
+   */
   private comparer = otherArray => {
     return current => {
       return (
@@ -82,16 +125,6 @@ export class SchemaHandler {
           return other[this.collectionName] === current[this.collectionName]
         }).length === 0
       )
-    }
-  }
-
-  private removeCollections = (syncSchema: SyncSchema) => {
-    for (const unsync of syncSchema.schemasToUnsync) {
-      for (const c of this.collections) {
-        if (unsync[this.collectionName] === c[this.collectionName]) {
-          this.collections.splice(this.collections.indexOf(c), 1)
-        }
-      }
     }
   }
 }

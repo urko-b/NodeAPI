@@ -84,9 +84,7 @@ export class App {
       next('Unauthorized')
     }
 
-    const isTokenValid: boolean = await this.authController.isTokenValid(
-      secret
-    )
+    const isTokenValid: boolean = await this.authController.isTokenValid(secret)
     if (isTokenValid === false) {
       res.status(401)
       next('The token provided is not valid')
