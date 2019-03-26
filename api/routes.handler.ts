@@ -63,7 +63,7 @@ export class RoutesHandler {
     }
   }
 
-  public async syncRoutes() {
+  public async syncRoutes(): Promise<any> {
     const syncRoutes: SyncRoutes = await this.models.syncRoutes()
 
     const routesToUnsync = syncRoutes.routesToUnsync
@@ -72,13 +72,13 @@ export class RoutesHandler {
     const synchedRoutes = this.synchedRoutes(routesToSync)
     const unsynchedRoutes = this.unsynchedRoutes(routesToUnsync)
 
-    let result: Object = new Object()
+    const result: any = {}
     if (synchedRoutes !== '') {
-      result['synchedRoutes'] = synchedRoutes
+      result.synchedRoutes = synchedRoutes
     }
 
     if (unsynchedRoutes !== '') {
-      result['unsynchedRoutes'] = unsynchedRoutes
+      result.unsynchedRoutes = unsynchedRoutes
     }
     return result
   }
