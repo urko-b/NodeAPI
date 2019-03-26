@@ -8,6 +8,7 @@ import bodyParser = require('body-parser')
 import { RoutesHandler } from '../api/routes.handler'
 import * as server from '../app'
 import { Route } from '../models/model.module'
+import { TestHelper } from './test.module'
 
 let ashTreeId: string
 describe('API Generic Entity: Request http verbs', () => {
@@ -21,7 +22,7 @@ describe('API Generic Entity: Request http verbs', () => {
   app.app.use(bodyParser.json())
 
   it('should return OK Tree Get request', async () => {
-    const model: Route = new Route(
+    const treeRouteModel: Route = new Route(
       'tree',
       ['get', 'post', 'delete', 'patch'],
       '/tree',
@@ -30,7 +31,7 @@ describe('API Generic Entity: Request http verbs', () => {
     )
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    routesHandler.registerRoute(model)
+    routesHandler.registerRoute(treeRouteModel)
 
     const getResult = await chai.request(app.app).get(`/tree`)
     chai.expect(getResult).to.have.status(200)
@@ -63,9 +64,40 @@ describe('API Generic Entity: Request http verbs', () => {
 
     chai.expect(patchResult).to.have.status(204)
   })
+
+  it('should mount phone and smartwatch routes', async () => {
+    // Remove each mongoose model because we need to
+    //  add each again using RoutesHandler.init function
+    TestHelper.removeMongooseModels()
+
+    const phoneRouteModel: Route = new Route(
+      'phone',
+      ['get', 'post', 'delete', 'patch'],
+      '/phone',
+      '{"name": { "type":"String","required": true }}',
+      { new: true }
+    )
+
+    const smartWatchRouteModel: Route = new Route(
+      'smartWatch',
+      ['get', 'post', 'delete', 'patch'],
+      '/smartWatch',
+      '{"name": { "type":"String","required": true }}',
+      { new: true }
+    )
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    routesHandler.registerRoutes([phoneRouteModel, smartWatchRouteModel])
+
+    const phoneGetResult = await chai.request(app.app).get(`/phone`)
+    const smartWatchGetResult = await chai.request(app.app).get(`/smartWatch`)
+
+    chai.expect(phoneGetResult).to.have.status(200)
+    chai.expect(smartWatchGetResult).to.have.status(200)
+  })
 })
 
-describe('testing routes.handler methods', async () => {
+describe('routes.handler sync methods', async () => {
   chai.use(chaiHttp)
   dotenv.config()
 
@@ -102,11 +134,8 @@ describe('testing routes.handler methods', async () => {
   it('should unsync "sync_routes_test_collection"', async () => {
     // Remove each mongoose model because we need to
     //  add each again using RoutesHandler.init function
-    for (const key in mongoose.connection.models) {
-      if (mongoose.connection.models.hasOwnProperty(key)) {
-        delete mongoose.connection.models[key]
-      }
-    }
+    TestHelper.removeMongooseModels()
+
     const schemaDoc: any = {
       collection_name: 'sync_routes_test_collection',
       collection_schema: '{"name": "String"}'

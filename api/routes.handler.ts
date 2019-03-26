@@ -32,18 +32,18 @@ export class RoutesHandler {
     }
   }
 
-  public registerRoute(model: Route) {
-    const collectionName: string = model.collectionName
-    const schema: any = JSON.parse(model.mongooseSchema)
-    const strict: object = model.strict
-    const routeName: string = model.route
+  public registerRoute(routeModel: Route) {
+    const collectionName: string = routeModel.collectionName
+    const schema: any = JSON.parse(routeModel.mongooseSchema)
+    const strict: object = routeModel.strict
+    const routeName: string = routeModel.route
 
     const mongooseSchema = new mongoose.Schema(schema, strict)
 
     const route = (this._app.route[collectionName] = restful
       .model(collectionName, mongooseSchema, collectionName)
-      .methods(model.methods)
-      .updateOptions(model.updateOptions))
+      .methods(routeModel.methods)
+      .updateOptions(routeModel.updateOptions))
 
     route.before('post', this.setCollaboratorId)
     route.before('put', this.setCollaboratorId)
@@ -53,7 +53,7 @@ export class RoutesHandler {
 
     this.listenOnChanges(collectionName)
 
-    if (model.methods.includes('patch')) {
+    if (routeModel.methods.includes('patch')) {
       const patch = new patchHandler.PatchHandler(
         this._app,
         routeName,
@@ -83,7 +83,7 @@ export class RoutesHandler {
     return result
   }
 
-  private registerRoutes(routes: Route[]) {
+  public registerRoutes(routes: Route[]) {
     for (const model of routes) {
       this.registerRoute(model)
     }
