@@ -12,7 +12,7 @@ import { Route } from '../models/model.module'
 import { TestHelper } from './test.module'
 
 let ashTreeId: string
-describe('API Generic Entity: Request http verbs', () => {
+describe('Generic Entity Request (tree entity) Http verbs', () => {
   chai.use(chaiHttp)
   dotenv.config()
 
@@ -22,7 +22,7 @@ describe('API Generic Entity: Request http verbs', () => {
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
 
-  it('should return OK Tree Get request', async () => {
+  it('GET Request: should return OK ', async () => {
     const treeRouteModel: Route = new Route(
       'tree',
       ['get', 'post', 'delete', 'patch'],
@@ -38,7 +38,7 @@ describe('API Generic Entity: Request http verbs', () => {
     chai.expect(getResult).to.have.status(200)
   })
 
-  it('should post ash tree', async () => {
+  it('POST Request: should post ash ', async () => {
     const postResult = await chai
       .request(app.app)
       .post('/tree')
@@ -50,7 +50,7 @@ describe('API Generic Entity: Request http verbs', () => {
     ashTreeId = postResult.body._id
   })
 
-  it('should patch name field on ash tree entity', async () => {
+  it('PATCH Request: should patch name field "ash" to "oak"', async () => {
     const patchResult = await chai
       .request(app.app)
       .patch(`/tree/${ashTreeId}`)
@@ -60,13 +60,13 @@ describe('API Generic Entity: Request http verbs', () => {
     chai.expect(patchResult).to.have.status(200)
   })
 
-  it('should remove ash tree from tree entity', async () => {
+  it('REMOVE Request: should remove patched "ash" tree entity from', async () => {
     const patchResult = await chai.request(app.app).delete(`/tree/${ashTreeId}`)
 
     chai.expect(patchResult).to.have.status(204)
   })
 
-  it('should mount phone and smartwatch routes', async () => {
+  it('registerRoutes(): should register and mount phone and smartwatch routes', async () => {
     // Remove each mongoose model because we need to
     //  add each again using RoutesHandler.init function
     TestHelper.removeMongooseModels()
@@ -98,7 +98,7 @@ describe('API Generic Entity: Request http verbs', () => {
   })
 })
 
-describe('routes.handler sync methods', async () => {
+describe('Testing RoutesHandler functions:', async () => {
   chai.use(chaiHttp)
   dotenv.config()
 
@@ -108,12 +108,12 @@ describe('routes.handler sync methods', async () => {
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
 
-  it('should sync "sync_routes_test_collection"', async () => {
+  it('syncRoutes(): should sync "test_collection"', async () => {
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
     await routesHandler.init()
 
     const schemaDoc: any = {
-      collection_name: 'sync_routes_test_collection',
+      collection_name: 'test_collection',
       collection_schema: '{"name": "String"}'
     }
 
@@ -121,24 +121,24 @@ describe('routes.handler sync methods', async () => {
     const synchedRoutes: any = await routesHandler.syncRoutes()
 
     await mongoose.connection.models.collections_schemas.findOneAndDelete({
-      collection_name: { $eq: 'sync_routes_test_collection' }
+      collection_name: { $eq: 'test_collection' }
     })
 
     chai.assert(
       chai.expect(synchedRoutes).to.deep.equal({
-        synchedRoutes: 'sync_routes_test_collection',
+        synchedRoutes: 'test_collection',
         unsynchedRoutes: 'All up to date'
       })
     )
   })
 
-  it('should unsync "sync_routes_test_collection"', async () => {
+  it('syncRoutes(): should unsync "test_collection"', async () => {
     // Remove each mongoose model because we need to
     //  add each again using RoutesHandler.init function
     TestHelper.removeMongooseModels()
 
     const schemaDoc: any = {
-      collection_name: 'unsync_routes_test_collection',
+      collection_name: 'test_collection',
       collection_schema: '{"name": "String"}'
     }
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
@@ -148,7 +148,7 @@ describe('routes.handler sync methods', async () => {
     await routesHandler.syncRoutes()
 
     await mongoose.connection.models.collections_schemas.findOneAndDelete({
-      collection_name: { $eq: 'unsync_routes_test_collection' }
+      collection_name: { $eq: 'test_collection' }
     })
 
     const synchedRoutes: any = await routesHandler.syncRoutes()
@@ -156,12 +156,12 @@ describe('routes.handler sync methods', async () => {
     chai.assert(
       chai.expect(synchedRoutes).to.deep.equal({
         synchedRoutes: 'All up to date',
-        unsynchedRoutes: 'unsync_routes_test_collection'
+        unsynchedRoutes: 'test_collection'
       })
     )
   })
 
-  it('should set collaboratorId from request header to RoutesHandler', async () => {
+  it('setcollaboratorId(): should set collaboratorId RoutesHandler field from request header "collaboratorId"', async () => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
@@ -181,11 +181,10 @@ describe('routes.handler sync methods', async () => {
     )
   })
 
-  it('should return an array separated by commas with unsynched routes', async () => {
+  it('synchedRoutes(): should return an array separated by commas with synched routes', async () => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
 
     const routes: string[] = ['syncTestRoute1', 'syncTestRoute2']
     const synchedRoutes = routesHandler.synchedRoutes(routes)
@@ -193,11 +192,10 @@ describe('routes.handler sync methods', async () => {
     chai.assert(chai.expect(synchedRoutes).is.equals(routes.join()))
   })
 
-  it('should return an array separated by commas with unsynched routes', async () => {
+  it('unsynchedRoutes(): should return an array separated by commas with unsynched routes', async () => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
     const routesToUnsyc: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
 
     const unsynchedRoutes = routesHandler.unsynchedRoutes(routesToUnsyc)

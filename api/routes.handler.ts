@@ -98,7 +98,6 @@ export class RoutesHandler {
   }
 
   public setCollaboratorId = (req, res, next) => {
-    F
     const collaboratorId: string = req.get('collaboratorId')
     this._collaboratorId = collaboratorId
     next()

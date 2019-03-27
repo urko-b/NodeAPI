@@ -7,10 +7,10 @@ import { Log, LogHandler } from '../log/log.module'
 describe('Test Log', () => {
   const apiServer = new server.App(process.env.PORT)
   const logHandler = new LogHandler(apiServer.app)
-  const collaborator_id: mongoose.Types.ObjectId = mongoose.Types.ObjectId()
+  const collaboratorId: mongoose.Types.ObjectId = mongoose.Types.ObjectId()
 
   it('should insert new log', async () => {
-    const testLog = new Log(collaborator_id, 'MOCHA TEST')
+    const testLog = new Log(collaboratorId, 'MOCHA TEST')
     await logHandler.insertOne(testLog)
 
     const foundLog = await logHandler.findOne({
@@ -23,7 +23,7 @@ describe('Test Log', () => {
 
   it('should remove created log', async () => {
     const isRemove = await logHandler.findOneAndDelete({
-      collaborator_id: { $eq: collaborator_id }
+      collaborator_id: { $eq: collaboratorId }
     })
 
     return chai.assert(chai.expect(isRemove).to.be.true)
