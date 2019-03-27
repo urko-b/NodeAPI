@@ -66,18 +66,30 @@ export class RoutesHandler {
     }
   }
 
+  /**
+   * @remarks
+   * This function get synched/unsynched models from an instance of {@link SyncRoutes}
+   * Then, it checks what routes should "sync" and it register to api endpoints.
+   * And if there is any route to "unsync" it will remove from api endpoints.
+   *
+   * @returns Object with two fields: synchedRoutes and unsynchedRoutes.
+   * Each string field will print wich collections has been synched/unsynched.
+   * If there aren't any to sync/unsync it will output "All up to date"
+   */
   public async syncRoutes(): Promise<any> {
     const syncRoutes: SyncRoutes = await this.models.syncRoutes()
 
     const routesToUnsync = syncRoutes.routesToUnsync
     const routesToSync = syncRoutes.routesToSync
 
+    this.registerRoutes(routesToSync)
     const routesToSyncNames: string[] = this.getRegisteredRoutes(routesToSync)
     const synchedRoutes = this.synchedRoutes(routesToSyncNames)
 
     const routesToUnsyncNames: string[] = this.getUnregisteredRoutes(
       routesToUnsync
     )
+    this.removeRoutes(routesToUnsyncNames)
     const unsynchedRoutes = this.unsynchedRoutes(routesToUnsyncNames)
 
     const result: any = {}
@@ -146,7 +158,6 @@ export class RoutesHandler {
     let routesToUnsyncNames: string[]
     if (routesToUnsync !== undefined) {
       routesToUnsyncNames = routesToUnsync
-      this.removeRoutes(routesToUnsyncNames)
     }
     return routesToUnsyncNames
   }
@@ -155,7 +166,6 @@ export class RoutesHandler {
     let routesToSyncNames: string[]
     if (routesToSync !== undefined) {
       routesToSyncNames = routesToSync.map(r => r.collectionName)
-      this.registerRoutes(routesToSync)
     }
     return routesToSyncNames
   }
