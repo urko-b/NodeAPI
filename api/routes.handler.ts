@@ -103,18 +103,39 @@ export class RoutesHandler {
     return result
   }
 
+  /**
+   * @remarks
+   * @param routes array of {@link Route}
+   *
+   * Loop each route and call {@link RoutesHandler.registerRoute}
+   * in order to register each route
+   */
   public registerRoutes(routes: Route[]) {
     for (const model of routes) {
       this.registerRoute(model)
     }
   }
 
+  /**
+   * @remarks
+   * Express middleware to get the collaboratorId
+   * from request headers.
+   * If the request suplies that header, then we
+   * set our private field _collaboratorId with that value
+   */
   public setCollaboratorId = (req, res, next) => {
     const collaboratorId: string = req.get('collaboratorId')
     this._collaboratorId = collaboratorId
     next()
   }
 
+  /**
+   *
+   * @param routesToSync array of string with the routes registered to api
+   * @returns "All up to date" if routesToSync is empty,
+   * instead, it will output a string with all routes
+   * synched each separated by comma
+   */
   public synchedRoutes = (routesToSync: string[]) => {
     if (
       routesToSync === undefined ||
@@ -127,6 +148,13 @@ export class RoutesHandler {
     return `${routesToSync.join()}`
   }
 
+  /**
+   *
+   * @param routesToUnsync array of string with the routes registered to api
+   * @returns "All up to date" if routesToUnsync is empty,
+   * instead, it will output a string with all routes
+   * "unsynched" each separated by comma
+   */
   public unsynchedRoutes = (routesToUnsync: string[]) => {
     if (
       routesToUnsync === undefined ||
@@ -139,6 +167,9 @@ export class RoutesHandler {
     return `${routesToUnsync.join()}`
   }
 
+  /**
+   * @param routesToUnsync array with routes to remove from api endpoints
+   */
   public removeRoutes = (routesToUnsync: string[]) => {
     if (routesToUnsync == null || routesToUnsync.length <= 0) {
       return
