@@ -1,5 +1,6 @@
 import * as dotenv from 'dotenv'
 import * as mongoose from 'mongoose'
+import { TestHelper } from './test.module'
 
 dotenv.config()
 before(done => {
@@ -17,9 +18,9 @@ before(done => {
 })
 
 afterEach(async () => {
-  delete mongoose.connection.models.collections_schemas
+  TestHelper.removeMongooseModelCollectionsSchemas()
 })
 
 beforeEach(async () => {
-  delete mongoose.connection.models.audit_log
+  TestHelper.removeMongooseModelAuditLog()
 })

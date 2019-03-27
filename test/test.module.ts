@@ -9,4 +9,12 @@ export class TestHelper {
       }
     }
   }
+
+  public static removeMongooseModelCollectionsSchemas = () => {
+    delete mongoose.connection.models.collections_schemas
+  }
+
+  public static removeMongooseModelAuditLog = () => {
+    delete mongoose.connection.models.audit_log
+  }
 }

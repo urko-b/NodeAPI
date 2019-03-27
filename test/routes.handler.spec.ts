@@ -3,6 +3,7 @@ import chaiHttp = require('chai-http')
 import * as dotenv from 'dotenv'
 import 'mocha'
 import * as mongoose from 'mongoose'
+import * as supertest from 'supertest'
 
 import bodyParser = require('body-parser')
 import { RoutesHandler } from '../api/routes.handler'
@@ -159,5 +160,17 @@ describe('routes.handler sync methods', async () => {
         unsynchedRoutes: 'sync_routes_test_collection'
       })
     )
+  })
+
+  it('should set collaboratorId from request header to RoutesHandler', async () => {    
+    TestHelper.removeMongooseModels()
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
+
+    const req = supertest(app.app).get('/phone').set({'collaboratorId': collaboratorId.toString()})
+
+    routesHandler.setCollaboratorId(req, null, ()=>{ return })
+    chai.assert(chai.expect(routesHandler.collaboratorId).is.equal(collaboratorId.toString()))
   })
 })

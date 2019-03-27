@@ -15,7 +15,10 @@ export class RoutesHandler {
   protected logHandler: LogHandler
   private _app: express.Application
 
-  private collaboratorId: string
+  private _collaboratorId: string
+  public get collaboratorId(): string {
+    return this._collaboratorId;
+  }
 
   constructor(app: express.Application) {
     this._app = app
@@ -89,6 +92,12 @@ export class RoutesHandler {
     }
   }
 
+  public setCollaboratorId = (req, res, next) => {
+    const collaboratorId: string = req.get('collaboratorId')
+    this._collaboratorId = collaboratorId
+    next()
+  }
+
   private listenOnChanges(collectionName: string) {
     mongoose
       .model(collectionName)
@@ -102,7 +111,7 @@ export class RoutesHandler {
         }
 
         const log: Log = new Log(
-          new mongoose.Types.ObjectId(this.collaboratorId),
+          new mongoose.Types.ObjectId(this._collaboratorId),
           data.operationType,
           collectionName,
           JSON.stringify(data),
@@ -111,12 +120,6 @@ export class RoutesHandler {
         )
         await this.logHandler.insertOne(log)
       })
-  }
-
-  private setCollaboratorId = (req, res, next) => {
-    const collaboratorId: string = req.header('collaboratorId')
-    this.collaboratorId = collaboratorId
-    next()
   }
 
   private synchedRoutes(routesToSync: Route[]) {
