@@ -11,14 +11,14 @@ export class RoutesHandler {
   public get app(): express.Application {
     return this._app
   }
+  public get collaboratorId(): string {
+    return this._collaboratorId
+  }
   protected models: Models
   protected logHandler: LogHandler
   private _app: express.Application
 
   private _collaboratorId: string
-  public get collaboratorId(): string {
-    return this._collaboratorId;
-  }
 
   constructor(app: express.Application) {
     this._app = app
@@ -73,7 +73,10 @@ export class RoutesHandler {
     const routesToSync = syncRoutes.routesToSync
 
     const synchedRoutes = this.synchedRoutes(routesToSync)
+    this.registerRoutes(routesToSync)
+
     const unsynchedRoutes = this.unsynchedRoutes(routesToUnsync)
+    this.removeRoutes(routesToUnsync)
 
     const result: any = {}
     if (synchedRoutes !== '') {
@@ -98,6 +101,45 @@ export class RoutesHandler {
     next()
   }
 
+  public synchedRoutes = (routesToSync: Route[]) => {
+    if (
+      routesToSync === undefined ||
+      routesToSync === null ||
+      routesToSync.length <= 0
+    ) {
+      return 'All up to date'
+    }
+
+    return `${routesToSync.map(r => r.collectionName).join()}`
+  }
+
+  public unsynchedRoutes = (routesToUnsync: string[]) => {
+    if (
+      routesToUnsync === undefined ||
+      routesToUnsync === null ||
+      routesToUnsync.length <= 0
+    ) {
+      return 'All up to date'
+    }
+
+    return `${routesToUnsync.join()}`
+  }
+
+  public removeRoutes = (routesToUnsync: string[]) => {
+    if (routesToUnsync == null || routesToUnsync.length <= 0) {
+      return
+    }
+
+    for (const unsync of routesToUnsync) {
+      this.app._router.stack = this.app._router.stack.filter(r => {
+        if (r.route === undefined) {
+          return r
+        }
+        return !r.route.path.includes(unsync)
+      })
+    }
+  }
+
   private listenOnChanges(collectionName: string) {
     mongoose
       .model(collectionName)
@@ -120,39 +162,5 @@ export class RoutesHandler {
         )
         await this.logHandler.insertOne(log)
       })
-  }
-
-  private synchedRoutes(routesToSync: Route[]) {
-    if (
-      routesToSync === undefined ||
-      routesToSync === null ||
-      routesToSync.length <= 0
-    ) {
-      return 'All up to date'
-    }
-
-    this.registerRoutes(routesToSync)
-    return `${routesToSync.map(r => r.collectionName).join()}`
-  }
-
-  private unsynchedRoutes(routesToUnsync: string[]) {
-    if (
-      routesToUnsync === undefined ||
-      routesToUnsync === null ||
-      routesToUnsync.length <= 0
-    ) {
-      return 'All up to date'
-    }
-
-    for (const unsync of routesToUnsync) {
-      this.app._router.stack = this.app._router.stack.filter(r => {
-        if (r.route === undefined) {
-          return r
-        }
-        return !r.route.path.includes(unsync)
-      })
-    }
-
-    return `${routesToUnsync.join()}`
   }
 }

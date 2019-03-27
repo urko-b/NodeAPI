@@ -162,15 +162,53 @@ describe('routes.handler sync methods', async () => {
     )
   })
 
-  it('should set collaboratorId from request header to RoutesHandler', async () => {    
+  it('should set collaboratorId from request header to RoutesHandler', async () => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
     const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
 
-    const req = supertest(app.app).get('/phone').set({'collaboratorId': collaboratorId.toString()})
+    const req = supertest(app.app)
+      .get('/phone')
+      .set({ collaboratorId: collaboratorId.toString() })
 
-    routesHandler.setCollaboratorId(req, null, ()=>{ return })
-    chai.assert(chai.expect(routesHandler.collaboratorId).is.equal(collaboratorId.toString()))
+    routesHandler.setCollaboratorId(req, null, () => {
+      return
+    })
+    chai.assert(
+      chai
+        .expect(routesHandler.collaboratorId)
+        .is.equal(collaboratorId.toString())
+    )
+  })
+
+  it('should return an array separated by commas with unsynched routes', async () => {
+    TestHelper.removeMongooseModels()
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
+    const syncTestRoute1: Route = new Route('syncTestRoute1', null, null, null)
+    const syncTestRoute2: Route = new Route('syncTestRoute2', null, null, null)
+
+    const routes: Route[] = [syncTestRoute1, syncTestRoute2]
+    const synchedRoutes = routesHandler.synchedRoutes(routes)
+
+    chai.assert(
+      chai
+        .expect(synchedRoutes)
+        .is.equals(routes.map(r => r.collectionName).join())
+    )
+  })
+
+  it('should return an array separated by commas with unsynched routes', async () => {
+    TestHelper.removeMongooseModels()
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
+    const routesToUnsyc: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
+
+    const unsynchedRoutes = routesHandler.unsynchedRoutes(routesToUnsyc)
+
+    chai.assert(chai.expect(unsynchedRoutes).is.equals(routesToUnsyc.join()))
   })
 })
