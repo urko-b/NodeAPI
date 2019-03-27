@@ -72,11 +72,13 @@ export class RoutesHandler {
     const routesToUnsync = syncRoutes.routesToUnsync
     const routesToSync = syncRoutes.routesToSync
 
-    const synchedRoutes = this.synchedRoutes(routesToSync)
-    this.registerRoutes(routesToSync)
+    const routesToSyncNames: string[] = this.getRegisteredRoutes(routesToSync)
+    const synchedRoutes = this.synchedRoutes(routesToSyncNames)
 
-    const unsynchedRoutes = this.unsynchedRoutes(routesToUnsync)
-    this.removeRoutes(routesToUnsync)
+    const routesToUnsyncNames: string[] = this.getUnregisteredRoutes(
+      routesToUnsync
+    )
+    const unsynchedRoutes = this.unsynchedRoutes(routesToUnsyncNames)
 
     const result: any = {}
     if (synchedRoutes !== '') {
@@ -96,12 +98,13 @@ export class RoutesHandler {
   }
 
   public setCollaboratorId = (req, res, next) => {
+    F
     const collaboratorId: string = req.get('collaboratorId')
     this._collaboratorId = collaboratorId
     next()
   }
 
-  public synchedRoutes = (routesToSync: Route[]) => {
+  public synchedRoutes = (routesToSync: string[]) => {
     if (
       routesToSync === undefined ||
       routesToSync === null ||
@@ -110,7 +113,7 @@ export class RoutesHandler {
       return 'All up to date'
     }
 
-    return `${routesToSync.map(r => r.collectionName).join()}`
+    return `${routesToSync.join()}`
   }
 
   public unsynchedRoutes = (routesToUnsync: string[]) => {
@@ -138,6 +141,24 @@ export class RoutesHandler {
         return !r.route.path.includes(unsync)
       })
     }
+  }
+
+  private getUnregisteredRoutes(routesToUnsync: any[]) {
+    let routesToUnsyncNames: string[]
+    if (routesToUnsync !== undefined) {
+      routesToUnsyncNames = routesToUnsync
+      this.removeRoutes(routesToUnsyncNames)
+    }
+    return routesToUnsyncNames
+  }
+
+  private getRegisteredRoutes(routesToSync: any[]) {
+    let routesToSyncNames: string[]
+    if (routesToSync !== undefined) {
+      routesToSyncNames = routesToSync.map(r => r.collectionName)
+      this.registerRoutes(routesToSync)
+    }
+    return routesToSyncNames
   }
 
   private listenOnChanges(collectionName: string) {

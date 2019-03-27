@@ -138,18 +138,17 @@ describe('routes.handler sync methods', async () => {
     TestHelper.removeMongooseModels()
 
     const schemaDoc: any = {
-      collection_name: 'sync_routes_test_collection',
+      collection_name: 'unsync_routes_test_collection',
       collection_schema: '{"name": "String"}'
     }
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
     await routesHandler.init()
 
-    await routesHandler.syncRoutes()
     await mongoose.connection.models.collections_schemas.insertMany([schemaDoc])
     await routesHandler.syncRoutes()
 
     await mongoose.connection.models.collections_schemas.findOneAndDelete({
-      collection_name: { $eq: 'sync_routes_test_collection' }
+      collection_name: { $eq: 'unsync_routes_test_collection' }
     })
 
     const synchedRoutes: any = await routesHandler.syncRoutes()
@@ -157,7 +156,7 @@ describe('routes.handler sync methods', async () => {
     chai.assert(
       chai.expect(synchedRoutes).to.deep.equal({
         synchedRoutes: 'All up to date',
-        unsynchedRoutes: 'sync_routes_test_collection'
+        unsynchedRoutes: 'unsync_routes_test_collection'
       })
     )
   })
@@ -187,17 +186,11 @@ describe('routes.handler sync methods', async () => {
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
     const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
-    const syncTestRoute1: Route = new Route('syncTestRoute1', null, null, null)
-    const syncTestRoute2: Route = new Route('syncTestRoute2', null, null, null)
 
-    const routes: Route[] = [syncTestRoute1, syncTestRoute2]
+    const routes: string[] = ['syncTestRoute1', 'syncTestRoute2']
     const synchedRoutes = routesHandler.synchedRoutes(routes)
 
-    chai.assert(
-      chai
-        .expect(synchedRoutes)
-        .is.equals(routes.map(r => r.collectionName).join())
-    )
+    chai.assert(chai.expect(synchedRoutes).is.equals(routes.join()))
   })
 
   it('should return an array separated by commas with unsynched routes', async () => {
