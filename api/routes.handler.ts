@@ -35,6 +35,10 @@ export class RoutesHandler {
     }
   }
 
+  /**
+   * 
+   * @param routeModel {@link Route}
+   */
   public registerRoute(routeModel: Route) {
     const collectionName: string = routeModel.collectionName
     const schema: any = JSON.parse(routeModel.mongooseSchema)
@@ -172,6 +176,8 @@ export class RoutesHandler {
 
   /**
    * @param routesToUnsync array with routes to remove from api endpoints
+   * @remarks
+   * This function is responsible of removing the routes passed as parameter from api
    */
   public removeRoutes = (routesToUnsync: string[]) => {
     if (routesToUnsync == null || routesToUnsync.length <= 0) {
@@ -179,7 +185,7 @@ export class RoutesHandler {
     }
 
     for (const unsync of routesToUnsync) {
-      this.app._router.stack = this.app._router.stack.filter(r => {
+      this._app._router.stack = this._app._router.stack.filter(r => {
         if (r.route === undefined) {
           return r
         }
@@ -188,7 +194,11 @@ export class RoutesHandler {
     }
   }
 
-  private getUnregisteredRoutes(routesToUnsync: any[]) {
+  /**
+   * 
+   * @param routesToUnsync 
+   */
+  public getUnregisteredRoutes(routesToUnsync: any[]) {
     let routesToUnsyncNames: string[]
     if (routesToUnsync !== undefined) {
       routesToUnsyncNames = routesToUnsync
@@ -196,7 +206,11 @@ export class RoutesHandler {
     return routesToUnsyncNames
   }
 
-  private getRegisteredRoutes(routesToSync: any[]) {
+  /**
+   * 
+   * @param routesToSync 
+   */
+  public getRegisteredRoutes(routesToSync: any[]) {
     let routesToSyncNames: string[]
     if (routesToSync !== undefined) {
       routesToSyncNames = routesToSync.map(r => r.collectionName)
@@ -204,6 +218,10 @@ export class RoutesHandler {
     return routesToSyncNames
   }
 
+  /**
+   * 
+   * @param collectionName 
+   */
   private listenOnChanges(collectionName: string) {
     mongoose
       .model(collectionName)

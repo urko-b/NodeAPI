@@ -96,6 +96,25 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
     chai.expect(phoneGetResult).to.have.status(200)
     chai.expect(smartWatchGetResult).to.have.status(200)
   })
+
+  
+  it('removeRoutes(): should remove phone endpoint', async () => {
+    TestHelper.removeMongooseModels()
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesToUnsyc: string[] = ['phone']
+
+    let phoneGetResult = await chai.request(app.app).get(`/phone`)
+    if (phoneGetResult.status !== 200) {
+      chai.assert(chai.expect(phoneGetResult).to.have.status(200))
+      
+    }
+
+    routesHandler.removeRoutes(routesToUnsyc)
+    phoneGetResult = await chai.request(app.app).get(`/phone`)
+
+    chai.assert(chai.expect(phoneGetResult).to.have.status(404))
+  })
 })
 
 describe('Testing RoutesHandler functions:', async () => {
@@ -202,4 +221,5 @@ describe('Testing RoutesHandler functions:', async () => {
 
     chai.assert(chai.expect(unsynchedRoutes).is.equals(routesToUnsyc.join()))
   })
+
 })
