@@ -2,7 +2,7 @@ import { SchemaHandler } from '../schemas/schema.module'
 import { Route } from './route'
 import { SyncRoutes } from './sync.routes'
 
-export class Models {
+export class ModelsHandler {
   public get routes(): Route[] {
     return this._routes
   }
@@ -15,6 +15,7 @@ export class Models {
 
   constructor() {
     this.schemaHandler = new SchemaHandler()
+    this._routes = []
   }
 
   public async init() {

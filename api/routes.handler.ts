@@ -4,7 +4,7 @@ import * as restful from 'node-restful'
 restful.mongoose = mongoose
 
 import { Log, LogHandler } from '../log/log.module'
-import { Models, Route, SyncRoutes } from '../models/model.module'
+import { ModelsHandler, Route, SyncRoutes } from '../models/model.module'
 import * as patchHandler from './patch.handler'
 
 export class RoutesHandler {
@@ -14,7 +14,7 @@ export class RoutesHandler {
   public get collaboratorId(): string {
     return this._collaboratorId
   }
-  protected models: Models
+  protected models: ModelsHandler
   protected logHandler: LogHandler
   private _app: express.Application
 
@@ -22,7 +22,7 @@ export class RoutesHandler {
 
   constructor(app: express.Application) {
     this._app = app
-    this.models = new Models()
+    this.models = new ModelsHandler()
     this.logHandler = new LogHandler(this._app)
   }
 
