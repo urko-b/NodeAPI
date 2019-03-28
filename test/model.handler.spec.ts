@@ -40,9 +40,8 @@ describe('Testing models.handler', () => {
     syncRoutes = await modelsHandler.syncRoutes()
     
     const routesToSync = syncRoutes.routesToSync
-    // console.log('routesToSync', routesToSync)
     chai.assert(
-      chai.expect(routesToSync).to.be.an('array').and.not.be.empty.and.to.have.deep.property('collectionName', 'test_collection')
+      chai.expect(routesToSync).to.be.an('array').not.be.empty.and.have.deep.property('collectionName', 'test_collection')
     )
   })
 
@@ -56,7 +55,16 @@ describe('Testing models.handler', () => {
     const routesToUnsync = syncRoutes.routesToUnsync
     
     chai.assert(
-      chai.expect(routesToUnsync).to.be.an('array').and.not.be.empty.and.equals(['test_collection'])
+      chai.expect(routesToUnsync).to.be.an('array').not.be.empty.and.equals(['test_collection'])
+    )
+  })
+
+  it('fillModels(): Testing fillModels()', async () => {
+    const modelsHandler = new ModelsHandler()    
+    await modelsHandler.init()
+    modelsHandler.fillModels()
+    chai.assert(
+      chai.expect(modelsHandler.routes).to.be.an('array').not.be.empty
     )
   })
 })

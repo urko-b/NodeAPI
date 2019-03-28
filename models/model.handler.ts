@@ -63,7 +63,7 @@ export class ModelsHandler {
     return syncRoutes
   }
 
-  private fillModels(): void {
+  public fillModels(): void {
     this._routes = new Array<Route>()
     for (const collection of this.schemaHandler.collections) {
       const collection_name: string = collection.collection_name
