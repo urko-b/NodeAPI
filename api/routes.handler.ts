@@ -111,6 +111,9 @@ export class RoutesHandler {
    * in order to register each route
    */
   public registerRoutes(routes: Route[]) {
+    if (routes === undefined || routes == null || routes.length <= 0) {
+      return
+    }
     for (const model of routes) {
       this.registerRoute(model)
     }
