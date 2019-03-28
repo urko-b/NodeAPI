@@ -3,8 +3,8 @@ import 'mocha'
 import * as mongoose from 'mongoose'
 import { SchemaHandler, SyncSchema } from '../schemas/schema.module'
 
-describe('Schema Handler Fill', () => {
-  it('should fill the collections array', async () => {
+describe('Testing Schema', () => {
+  it('fillSchema() should fill the collections array', async () => {
     const handler = new SchemaHandler()
     await handler.fillSchema()
     chai.assert(
@@ -12,7 +12,7 @@ describe('Schema Handler Fill', () => {
     )
   })
 
-  it('should add birds as new model', async () => {
+  it('syncSchema(): should add birds as new model', async () => {
     const handler = new SchemaHandler()
     const birdsSchema: object = {
       collection_name: 'birds',
@@ -30,7 +30,7 @@ describe('Schema Handler Fill', () => {
     )
   })
 
-  it('should remove birds model', async () => {
+  it('syncSchema(): should remove birds model', async () => {
     const handler = new SchemaHandler()
     await mongoose.connection.models.collections_schemas
       .findOneAndRemove({
@@ -46,7 +46,7 @@ describe('Schema Handler Fill', () => {
     )
   })
 
-  it('should return an array with the collection we have just inserted to collections_schemas collection', async () => {
+  it('getSchemasToSync(): should return an array with the collection we have just inserted to collections_schemas collection', async () => {
     const handler = new SchemaHandler()
     await handler.fillSchema()
 
@@ -71,7 +71,7 @@ describe('Schema Handler Fill', () => {
     )
   })
 
-  it('should unsync(remove) tree from collections array', async () => {
+  it('removeCollections(): should unsync(remove) tree from collections array', async () => {
     const handler = new SchemaHandler()
     handler.collections = [
       { collection_name: 'tree' },
