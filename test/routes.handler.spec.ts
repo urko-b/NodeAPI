@@ -97,7 +97,6 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
     chai.expect(smartWatchGetResult).to.have.status(200)
   })
 
-  
   it('removeRoutes(): should remove phone endpoint', async () => {
     TestHelper.removeMongooseModels()
 
@@ -107,7 +106,6 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
     let phoneGetResult = await chai.request(app.app).get(`/phone`)
     if (phoneGetResult.status !== 200) {
       chai.assert(chai.expect(phoneGetResult).to.have.status(200))
-      
     }
 
     routesHandler.removeRoutes(routesToUnsyc)
@@ -206,7 +204,7 @@ describe('Testing RoutesHandler functions:', async () => {
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
 
     const routes: string[] = ['syncTestRoute1', 'syncTestRoute2']
-    const synchedRoutes = routesHandler.synchedRoutes(routes)
+    const synchedRoutes = routesHandler.getSynchedRoutes(routes)
 
     chai.assert(chai.expect(synchedRoutes).is.equals(routes.join()))
   })
@@ -217,9 +215,8 @@ describe('Testing RoutesHandler functions:', async () => {
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
     const routesToUnsyc: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
 
-    const unsynchedRoutes = routesHandler.unsynchedRoutes(routesToUnsyc)
+    const unsynchedRoutes = routesHandler.getUnsynchedRoutes(routesToUnsyc)
 
     chai.assert(chai.expect(unsynchedRoutes).is.equals(routesToUnsyc.join()))
   })
-
 })

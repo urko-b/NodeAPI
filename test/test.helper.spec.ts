@@ -17,10 +17,12 @@ before(done => {
   })
 })
 
-afterEach(async () => {
+afterEach(done => {
   TestHelper.removeMongooseModelCollectionsSchemas()
+  done()
 })
 
-beforeEach(async () => {
+beforeEach(done => {
   TestHelper.removeMongooseModelAuditLog()
+  done()
 })

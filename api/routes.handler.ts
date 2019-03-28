@@ -36,7 +36,7 @@ export class RoutesHandler {
   }
 
   /**
-   * 
+   *
    * @param routeModel {@link Route}
    */
   public registerRoute(routeModel: Route) {
@@ -87,14 +87,12 @@ export class RoutesHandler {
     const routesToSync = syncRoutes.routesToSync
 
     this.registerRoutes(routesToSync)
-    const routesToSyncNames: string[] = this.getRegisteredRoutes(routesToSync)
-    const synchedRoutes = this.synchedRoutes(routesToSyncNames)
+    const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync)
+    const synchedRoutes = this.getSynchedRoutes(routesToSyncNames)
 
-    const routesToUnsyncNames: string[] = this.getUnregisteredRoutes(
-      routesToUnsync
-    )
+    const routesToUnsyncNames: string[] = this.getRoutesToUnsync(routesToUnsync)
     this.removeRoutes(routesToUnsyncNames)
-    const unsynchedRoutes = this.unsynchedRoutes(routesToUnsyncNames)
+    const unsynchedRoutes = this.getUnsynchedRoutes(routesToUnsyncNames)
 
     const result: any = {}
     if (synchedRoutes !== '') {
@@ -143,7 +141,7 @@ export class RoutesHandler {
    * instead, it will output a string with all routes
    * synched each separated by comma
    */
-  public synchedRoutes = (routesToSync: string[]) => {
+  public getSynchedRoutes = (routesToSync: string[]): string => {
     if (
       routesToSync === undefined ||
       routesToSync === null ||
@@ -162,7 +160,7 @@ export class RoutesHandler {
    * instead, it will output a string with all routes
    * "unsynched" each separated by comma
    */
-  public unsynchedRoutes = (routesToUnsync: string[]) => {
+  public getUnsynchedRoutes = (routesToUnsync: string[]): string => {
     if (
       routesToUnsync === undefined ||
       routesToUnsync === null ||
@@ -195,10 +193,10 @@ export class RoutesHandler {
   }
 
   /**
-   * 
-   * @param routesToUnsync 
+   *
+   * @param routesToUnsync
    */
-  public getUnregisteredRoutes(routesToUnsync: any[]) {
+  public getRoutesToUnsync(routesToUnsync: any[]) {
     let routesToUnsyncNames: string[]
     if (routesToUnsync !== undefined) {
       routesToUnsyncNames = routesToUnsync
@@ -207,10 +205,10 @@ export class RoutesHandler {
   }
 
   /**
-   * 
-   * @param routesToSync 
+   *
+   * @param routesToSync
    */
-  public getRegisteredRoutes(routesToSync: any[]) {
+  public getRoutesToSync(routesToSync: any[]) {
     let routesToSyncNames: string[]
     if (routesToSync !== undefined) {
       routesToSyncNames = routesToSync.map(r => r.collectionName)
@@ -219,8 +217,8 @@ export class RoutesHandler {
   }
 
   /**
-   * 
-   * @param collectionName 
+   *
+   * @param collectionName
    */
   private listenOnChanges(collectionName: string) {
     mongoose
