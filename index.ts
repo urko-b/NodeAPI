@@ -14,5 +14,5 @@ mongoose.connect(process.env.DB, connectionError => {
   const app = new server.App(process.env.PORT)
   app.init()
 
-  app.Run()
+  app.run()
 })

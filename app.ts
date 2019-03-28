@@ -33,10 +33,26 @@ export class App {
     this.syncHandler.syncSchemas()
   }
 
-  public Run = () => {
+  public run = () => {
     this.app.listen(this.port, () => {
       console.info(`API REST running in http://localhost:${this.port}`)
     })
+  }
+
+  public tokenMiddleware = async (req, res, next) => {
+    const secret: string = req.header('token')
+    if (secret === undefined) {
+      res.status(401)
+      next('Unauthorized')
+    }
+
+    const isTokenValid: boolean = await this.authController.isTokenValid(secret)
+    if (isTokenValid === false) {
+      res.status(401)
+      next('The token provided is not valid')
+    }
+
+    next()
   }
 
   private initi18n(): void {
@@ -74,22 +90,6 @@ export class App {
     ) {
       res.setLocale(req.cookies['language-cookie'])
     }
-    next()
-  }
-
-  private tokenMiddleware = async (req, res, next) => {
-    const secret: string = req.header('token')
-    if (secret === undefined) {
-      res.status(401)
-      next('Unauthorized')
-    }
-
-    const isTokenValid: boolean = await this.authController.isTokenValid(secret)
-    if (isTokenValid === false) {
-      res.status(401)
-      next('The token provided is not valid')
-    }
-
     next()
   }
 

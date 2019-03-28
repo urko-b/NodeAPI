@@ -40,33 +40,42 @@ export class RoutesHandler {
    * @param routeModel {@link Route}
    */
   public registerRoute(routeModel: Route) {
-    const collectionName: string = routeModel.collectionName
-    const schema: any = JSON.parse(routeModel.mongooseSchema)
-    const strict: object = routeModel.strict
-    const routeName: string = routeModel.route
+    let collectionName: string
+    let schema: any
+    let strict: object
+    let routeName: string
+    try {
+      collectionName = routeModel.collectionName
+      schema = JSON.parse(routeModel.mongooseSchema)
+      strict = routeModel.strict
+      routeName = routeModel.route
 
-    const mongooseSchema = new mongoose.Schema(schema, strict)
+      const mongooseSchema = new mongoose.Schema(schema, strict)
 
-    const route = (this._app.route[collectionName] = restful
-      .model(collectionName, mongooseSchema, collectionName)
-      .methods(routeModel.methods)
-      .updateOptions(routeModel.updateOptions))
+      const route = (this._app.route[collectionName] = restful
+        .model(collectionName, mongooseSchema, collectionName)
+        .methods(routeModel.methods)
+        .updateOptions(routeModel.updateOptions))
 
-    route.before('post', this.setCollaboratorId)
-    route.before('put', this.setCollaboratorId)
-    route.before('delete', this.setCollaboratorId)
+      route.before('post', this.setCollaboratorId)
+      route.before('put', this.setCollaboratorId)
+      route.before('delete', this.setCollaboratorId)
 
-    route.register(this._app, routeName)
+      route.register(this._app, routeName)
 
-    this.listenOnChanges(collectionName)
+      this.listenOnChanges(collectionName)
 
-    if (routeModel.methods.includes('patch')) {
-      const patch = new patchHandler.PatchHandler(
-        this._app,
-        routeName,
-        collectionName
-      )
-      patch.registerPatch()
+      if (routeModel.methods.includes('patch')) {
+        const patch = new patchHandler.PatchHandler(
+          this._app,
+          routeName,
+          collectionName
+        )
+        patch.registerPatch()
+      }
+    } catch (error) {
+      console.log('collectionName', collectionName)
+      console.log(error)
     }
   }
 
