@@ -41,7 +41,7 @@ describe('Testing models.handler', () => {
     
     const routesToSync = syncRoutes.routesToSync
     chai.assert(
-      chai.expect(routesToSync).to.be.an('array').not.be.empty.and.have.deep.property('collectionName', 'test_collection')
+      chai.expect(routesToSync).to.be.an('array').not.be.empty.and.have.deep.property('collection_name', 'test_collection')
     )
   })
 

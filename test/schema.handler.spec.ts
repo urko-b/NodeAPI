@@ -41,7 +41,7 @@ describe('Testing Schema', () => {
     await handler.syncSchema()
 
     chai.assert(
-      chai.expect(handler.collections.filter(c => c.collection_name === 'bird'))
+      chai.expect(handler.collections.filter(c => c.collection_name === 'birds'))
         .to.be.empty
     )
   })

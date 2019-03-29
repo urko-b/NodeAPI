@@ -178,7 +178,7 @@ describe('Testing RoutesHandler functions:', async () => {
     )
   })
 
-  it('setcollaboratorId(): should set collaboratorId RoutesHandler field from request header "collaboratorId"', async () => {
+  it('setcollaboratorId(): should set collaboratorId RoutesHandler field from request header "collaboratorId"', (done) => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
@@ -196,6 +196,8 @@ describe('Testing RoutesHandler functions:', async () => {
         .expect(routesHandler.collaboratorId)
         .is.equal(collaboratorId.toString())
     )
+    
+    done()
   })
 
   it('synchedRoutes(): should return an array separated by commas with synched routes', async () => {

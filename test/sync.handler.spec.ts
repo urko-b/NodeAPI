@@ -19,7 +19,7 @@ describe('Testing sync.handler', () => {
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
 
-  it('synchSchemas(): should return 200 after get request to SyncSchema endpoint', async () => {
+  it('synchSchemas(): should return 200 after get request to SyncSchema endpoint', async() => {
     const routesHandler = new RoutesHandler(app.app)
     const syncHandler = new SyncHandler(routesHandler)
     syncHandler.syncSchemas()
@@ -29,7 +29,7 @@ describe('Testing sync.handler', () => {
     const syncSchemaResult = await chai
       .request(app.app)
       .get(`${apiRoute}/SyncSchema`)
-
+      
     chai.assert(chai.expect(syncSchemaResult).to.have.status(200))
   })
 })
