@@ -36,6 +36,7 @@ describe('Testing models.handler', () => {
 
   it('syncRoutes(): Testing routes to "sync"', async () => {
     const modelsHandler = new ModelsHandler()
+    modelsHandler.init()
     let syncRoutes: SyncRoutes
 
     const schemaDoc: any = {

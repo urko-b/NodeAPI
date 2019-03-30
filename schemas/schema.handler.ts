@@ -15,7 +15,6 @@ export class SchemaHandler {
    */
   constructor() {
     this.collections = new Array<any>()
-    this.init()
   }
 
   /**
@@ -102,7 +101,7 @@ export class SchemaHandler {
    * Initializes mongoose model that represents
    * collections_schemas collection
    */
-  private init() {
+  public init() {
     this.schema = new mongoose.Schema({
       collection_name: String,
       collection_schema: String

@@ -20,6 +20,7 @@ export class ModelsHandler {
 
   public async init() {
     try {
+      this.schemaHandler.init()
       await this.schemaHandler.fillSchema()
       this.fillModels()
     } catch (error) {

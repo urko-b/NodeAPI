@@ -4,8 +4,20 @@ import * as mongoose from 'mongoose'
 import { SchemaHandler, SyncSchema } from '../schemas/schema.module'
 
 describe('Testing Schema', () => {
+  it('init() should create mongoose model "collections_schemas"', done => {
+    const handler = new SchemaHandler()
+    handler.init()
+
+    chai.assert(
+      chai.expect(mongoose.connection.models.collections_schemas).not.be
+        .undefined
+    )
+    done()
+  })
+
   it('fillSchema() should fill the collections array', async () => {
     const handler = new SchemaHandler()
+    handler.init()
     await handler.fillSchema()
     chai.assert(
       chai.expect(handler.collections).to.be.an('array').and.not.be.empty
@@ -14,6 +26,7 @@ describe('Testing Schema', () => {
 
   it('syncSchema(): should add birds as new model', async () => {
     const handler = new SchemaHandler()
+    handler.init()
     const birdsSchema: object = {
       collection_name: 'birds',
       collection_schema: '{"name": { "type":"String","required": true }}'
@@ -32,6 +45,7 @@ describe('Testing Schema', () => {
 
   it('syncSchema(): should remove birds model', async () => {
     const handler = new SchemaHandler()
+    handler.init()
     await mongoose.connection.models.collections_schemas
       .findOneAndRemove({
         collection_name: { $eq: 'birds' }
@@ -41,13 +55,15 @@ describe('Testing Schema', () => {
     await handler.syncSchema()
 
     chai.assert(
-      chai.expect(handler.collections.filter(c => c.collection_name === 'birds'))
-        .to.be.empty
+      chai.expect(
+        handler.collections.filter(c => c.collection_name === 'birds')
+      ).to.be.empty
     )
   })
 
   it('getSchemasToSync(): should return an array with the collection we have just inserted to collections_schemas collection', async () => {
     const handler = new SchemaHandler()
+    handler.init()
     await handler.fillSchema()
 
     const schemaDoc: any = {
@@ -73,6 +89,7 @@ describe('Testing Schema', () => {
 
   it('removeCollections(): should unsync(remove) tree from collections array', async () => {
     const handler = new SchemaHandler()
+    handler.init()
     handler.collections = [
       { collection_name: 'tree' },
       { collection_name: 'crag' }
