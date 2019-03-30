@@ -103,14 +103,14 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    const routesToUnsyc: string[] = ['phone']
+    const routesToUnsync: string[] = ['phone']
 
     let phoneGetResult = await chai.request(app.app).get(`/phone`)
     if (phoneGetResult.status !== 200) {
       chai.assert(chai.expect(phoneGetResult).to.have.status(200))
     }
 
-    routesHandler.removeRoutes(routesToUnsyc)
+    routesHandler.removeRoutes(routesToUnsync)
     phoneGetResult = await chai.request(app.app).get(`/phone`)
 
     chai.assert(chai.expect(phoneGetResult).to.have.status(404))
@@ -202,7 +202,7 @@ describe('Testing RoutesHandler functions:', async () => {
     done()
   })
 
-  it('synchedRoutes(): should return an array separated by commas with synched routes', async () => {
+  it('synchedRoutes(): should return an array separated by commas with synched routes', done => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
@@ -211,16 +211,45 @@ describe('Testing RoutesHandler functions:', async () => {
     const synchedRoutes = routesHandler.getSynchedRoutes(routes)
 
     chai.assert(chai.expect(synchedRoutes).is.equals(routes.join()))
+    done()
   })
 
-  it('unsynchedRoutes(): should return an array separated by commas with unsynched routes', async () => {
+  it('unsynchedRoutes(): should return an array separated by commas with unsynched routes', done => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
-    const routesToUnsyc: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
+    const routesToUnsync: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
 
-    const unsynchedRoutes = routesHandler.getUnsynchedRoutes(routesToUnsyc)
+    const unsynchedRoutes = routesHandler.getUnsynchedRoutes(routesToUnsync)
 
-    chai.assert(chai.expect(unsynchedRoutes).is.equals(routesToUnsyc.join()))
+    chai.assert(chai.expect(unsynchedRoutes).is.equals(routesToUnsync.join()))
+    done()
+  })
+
+  it('getRoutesToUnsync(): should return an array of strings with all routes to unsynchronize', done => {
+    TestHelper.removeMongooseModels()
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesToUnsync: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
+
+    const unsynchedRoutes = routesHandler.getRoutesToUnsync(routesToUnsync)
+
+    chai.assert(chai.expect(unsynchedRoutes).is.eql(routesToUnsync))
+    done()
+  })
+
+  it('getRoutesToSync(): should return a string array with all routes to synchronize', done => {
+    TestHelper.removeMongooseModels()
+
+    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const result: string[] = ['testRoute1', 'testRoute2']
+    const routesToSync: any[] = [
+      { collectionName: 'testRoute1' },
+      { collectionName: 'testRoute2' }
+    ]
+
+    const synchedRoutes = routesHandler.getRoutesToSync(routesToSync)
+    chai.assert(chai.expect(synchedRoutes).is.eql(result))
+    done()
   })
 })

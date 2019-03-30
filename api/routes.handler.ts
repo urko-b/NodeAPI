@@ -9,21 +9,21 @@ import * as patchHandler from './patch.handler'
 
 export class RoutesHandler {
   public get app(): express.Application {
-    return this._app
+    return this.expressApp
   }
   public get collaboratorId(): string {
     return this._collaboratorId
   }
   protected models: ModelsHandler
   protected logHandler: LogHandler
-  private _app: express.Application
+  private expressApp: express.Application
 
   private _collaboratorId: string
 
   constructor(app: express.Application) {
-    this._app = app
+    this.expressApp = app
     this.models = new ModelsHandler()
-    this.logHandler = new LogHandler(this._app)
+    this.logHandler = new LogHandler(this.expressApp)
   }
 
   public async init() {
@@ -52,7 +52,7 @@ export class RoutesHandler {
 
       const mongooseSchema = new mongoose.Schema(schema, strict)
 
-      const route = (this._app.route[collectionName] = restful
+      const route = (this.expressApp.route[collectionName] = restful
         .model(collectionName, mongooseSchema, collectionName)
         .methods(routeModel.methods)
         .updateOptions(routeModel.updateOptions))
@@ -61,13 +61,13 @@ export class RoutesHandler {
       route.before('put', this.setCollaboratorId)
       route.before('delete', this.setCollaboratorId)
 
-      route.register(this._app, routeName)
+      route.register(this.expressApp, routeName)
 
       this.listenOnChanges(collectionName)
 
       if (routeModel.methods.includes('patch')) {
         const patch = new patchHandler.PatchHandler(
-          this._app,
+          this.expressApp,
           routeName,
           collectionName
         )
@@ -192,12 +192,14 @@ export class RoutesHandler {
     }
 
     for (const unsync of routesToUnsync) {
-      this._app._router.stack = this._app._router.stack.filter(r => {
-        if (r.route === undefined) {
-          return r
+      this.expressApp._router.stack = this.expressApp._router.stack.filter(
+        r => {
+          if (r.route === undefined) {
+            return r
+          }
+          return !r.route.path.includes(unsync)
         }
-        return !r.route.path.includes(unsync)
-      })
+      )
     }
   }
 
@@ -205,7 +207,7 @@ export class RoutesHandler {
    *
    * @param routesToUnsync
    */
-  public getRoutesToUnsync(routesToUnsync: any[]) {
+  public getRoutesToUnsync(routesToUnsync: any[]): string[] {
     let routesToUnsyncNames: string[]
     if (routesToUnsync !== undefined) {
       routesToUnsyncNames = routesToUnsync
@@ -217,7 +219,7 @@ export class RoutesHandler {
    *
    * @param routesToSync
    */
-  public getRoutesToSync(routesToSync: any[]) {
+  public getRoutesToSync(routesToSync: any[]): string[] {
     let routesToSyncNames: string[]
     if (routesToSync !== undefined) {
       routesToSyncNames = routesToSync.map(r => r.collectionName)
@@ -229,7 +231,7 @@ export class RoutesHandler {
    *
    * @param collectionName
    */
-  private listenOnChanges(collectionName: string) {
+  private listenOnChanges(collectionName: string): void {
     mongoose
       .model(collectionName)
       .collection.watch()
