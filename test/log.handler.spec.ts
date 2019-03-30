@@ -9,7 +9,17 @@ describe('Test Log', () => {
   const logHandler = new LogHandler(apiServer.app)
   const collaboratorId: mongoose.Types.ObjectId = mongoose.Types.ObjectId()
 
-  it('should insert new log', async () => {
+  it('init()', done => {
+    logHandler.init()
+
+    chai.assert(
+      chai.expect(mongoose.connection.models.audit_log).not.be.undefined
+    )
+    done()
+  })
+
+  it('findOne(): should insert new log', async () => {
+    await logHandler.init()
     const testLog = new Log(collaboratorId, 'MOCHA TEST')
     await logHandler.insertOne(testLog)
 
@@ -21,7 +31,8 @@ describe('Test Log', () => {
     )
   })
 
-  it('should remove created log', async () => {
+  it('findOneAndDelete(): should remove created log', async () => {
+    logHandler.init()
     const isRemove = await logHandler.findOneAndDelete({
       collaborator_id: { $eq: collaboratorId }
     })

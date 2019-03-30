@@ -13,11 +13,11 @@ export class LogHandler {
    */
   constructor(app: express.Application) {
     this.app = app
-    this.init()
   }
 
   /**
-   * insert log
+   *
+   * @param log {@link Log}
    */
   public async insertOne(log: Log) {
     await this.model.insertMany([log]).catch(err => {
@@ -56,12 +56,12 @@ export class LogHandler {
       })
   }
 
-  private init() {
+  public init() {
     this.schema = new mongoose.Schema({
       collaborator_id: mongoose.Types.ObjectId,
       date: {
-        type: Date,
-        default: Date.now()
+        default: Date.now(),
+        type: Date
       },
       operation: String,
       collection_name: String,

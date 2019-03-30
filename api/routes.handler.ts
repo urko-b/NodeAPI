@@ -28,6 +28,7 @@ export class RoutesHandler {
 
   public async init() {
     try {
+      await this.logHandler.init()
       await this.models.init()
       this.registerRoutes(this.models.routes)
     } catch (error) {
