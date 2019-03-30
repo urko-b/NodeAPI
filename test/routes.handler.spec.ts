@@ -8,11 +8,12 @@ import * as supertest from 'supertest'
 import bodyParser = require('body-parser')
 import { RoutesHandler } from '../api/routes.handler'
 import * as server from '../app'
-import { LogHandler } from '../log/log.module'
 import { Route } from '../models/model.module'
 import { TestHelper } from './test.module'
 
 let ashTreeId: string
+const isDevelopment: boolean = true
+
 describe('Generic Entity Request (tree entity) Http verbs', () => {
   TestHelper.removeMongooseModels()
   chai.use(chaiHttp)
@@ -33,7 +34,6 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
       { new: true }
     )
 
-    const isDevelopment: boolean = true
     const routesHandler: RoutesHandler = new RoutesHandler(
       app.app,
       isDevelopment
@@ -94,7 +94,10 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
       { new: true }
     )
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     routesHandler.registerRoutes([phoneRouteModel, smartWatchRouteModel])
 
     const phoneGetResult = await chai.request(app.app).get(`/phone`)
@@ -107,7 +110,10 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
   it('removeRoutes(): should remove phone endpoint', async () => {
     TestHelper.removeMongooseModels()
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     const routesToUnsync: string[] = ['phone']
 
     let phoneGetResult = await chai.request(app.app).get(`/phone`)
@@ -132,8 +138,26 @@ describe('Testing RoutesHandler functions:', async () => {
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
 
+  it('init(): should mount api routes for each entity', async () => {
+    TestHelper.removeMongooseModels()
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
+    await routesHandler.init()
+
+    chai.assert(
+      chai.expect(mongoose.connection.models.collections_schemas).not.be
+        .undefined
+    )
+  })
+
   it('syncRoutes(): should sync "test_collection"', async () => {
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    TestHelper.removeMongooseModels()
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     await routesHandler.init()
 
     const schemaDoc: any = {
@@ -165,7 +189,10 @@ describe('Testing RoutesHandler functions:', async () => {
       collection_name: 'test_collection',
       collection_schema: '{"name": "String"}'
     }
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     await routesHandler.init()
 
     await mongoose.connection.models.collections_schemas.insertMany([schemaDoc])
@@ -188,7 +215,10 @@ describe('Testing RoutesHandler functions:', async () => {
   it('setcollaboratorId(): should set collaboratorId RoutesHandler field from request header "collaboratorId"', done => {
     TestHelper.removeMongooseModels()
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     const collaboratorId: mongoose.Types.ObjectId = new mongoose.Types.ObjectId()
 
     const req = supertest(app.app)
@@ -210,7 +240,10 @@ describe('Testing RoutesHandler functions:', async () => {
   it('synchedRoutes(): should return an array separated by commas with synched routes', done => {
     TestHelper.removeMongooseModels()
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
 
     const routes: string[] = ['syncTestRoute1', 'syncTestRoute2']
     const synchedRoutes = routesHandler.getSynchedRoutes(routes)
@@ -222,7 +255,10 @@ describe('Testing RoutesHandler functions:', async () => {
   it('unsynchedRoutes(): should return an array separated by commas with unsynched routes', done => {
     TestHelper.removeMongooseModels()
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     const routesToUnsync: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
 
     const unsynchedRoutes = routesHandler.getUnsynchedRoutes(routesToUnsync)
@@ -234,7 +270,10 @@ describe('Testing RoutesHandler functions:', async () => {
   it('getRoutesToUnsync(): should return an array of strings with all routes to unsynchronize', done => {
     TestHelper.removeMongooseModels()
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     const routesToUnsync: string[] = ['unsyncTestRoute1', 'unsyncTestRoute2']
 
     const unsynchedRoutes = routesHandler.getRoutesToUnsync(routesToUnsync)
@@ -246,7 +285,10 @@ describe('Testing RoutesHandler functions:', async () => {
   it('getRoutesToSync(): should return a string array with all routes to synchronize', done => {
     TestHelper.removeMongooseModels()
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     const result: string[] = ['testRoute1', 'testRoute2']
     const routesToSync: any[] = [
       { collectionName: 'testRoute1' },
