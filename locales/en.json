@@ -5,5 +5,14 @@
 	"Cannot perform the operation at a path that does not exist": "Cannot perform the operation at a path that does not exist",
 	"The secret provided is not valid": "The secret provided is not valid",
 	"Cannot read property 'a' of null": "Cannot read property 'a' of null",
-	"OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/a\",\"value\":\"wwwwww\"}": "OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/a\",\"value\":\"wwwwww\"}"
+	"OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/a\",\"value\":\"wwwwww\"}": "OPERATION_PATH_UNRESOLVABLE:Cannot perform the operation at a path that does not exist --> {\"op\":\"replace\",\"path\":\"/a\",\"value\":\"wwwwww\"}",
+	"Cannot read property 'title' of null": "Cannot read property 'title' of null",
+	"OPERATION_OP_INVALID: \n        Operation `op` property is not one of operations defined in RFC-6902\n         --> {\"op\":\"reple\",\"path\":\"/tie\",\"value\":\"The art of Patch\"}": "OPERATION_OP_INVALID: \n        Operation `op` property is not one of operations defined in RFC-6902\n         --> {\"op\":\"reple\",\"path\":\"/tie\",\"value\":\"The art of Patch\"}",
+	"OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/titl\",\"value\":\"The art of Patch\"}": "OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/titl\",\"value\":\"The art of Patch\"}",
+	"OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/tite\",\"value\":\"The art of Patch\"}": "OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/tite\",\"value\":\"The art of Patch\"}",
+	"OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/ad\",\"value\":\"The art of Patch\"}": "OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/ad\",\"value\":\"The art of Patch\"}",
+	"OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/title/com\",\"value\":\"The art of Patch\"}": "OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/title/com\",\"value\":\"The art of Patch\"}",
+	"Cannot read property 'titasdle' of null": "Cannot read property 'titasdle' of null",
+	"Cannot read property 'titleaa' of null": "Cannot read property 'titleaa' of null",
+	"Document requested could not be found": "Document requested could not be found"
 }

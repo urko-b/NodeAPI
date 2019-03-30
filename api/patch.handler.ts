@@ -24,27 +24,23 @@ export class PatchHandler {
     this.resource = resource
   }
 
-  /**
-   *
-   */
   public registerPatch(): void {
     this.app.patch(`${this.routeName}/:id`, async (req, res) => {
       try {
         const jsonPatches: any = req.body
         const documentId: any = req.params.id
 
-        const documentToPatch = await this.app.route[this.resource].findOne({
-          _id: new mongoose.Types.ObjectId(documentId)
-        })
+        const documentToPatch = await this.getDocument(documentId)
+        if (!this.documentExists(documentToPatch)) {
+          return res
+            .status(404)
+            .send(res.__('Document requested could not be found'))
+        }
 
         const patchErrors = jsonpatch.validate(jsonPatches, documentToPatch)
-        if (patchErrors !== undefined) {
-          const responseErrors: string = this.handleJsonPatchError(
-            patchErrors,
-            res,
-            jsonPatches
-          )
-          return res.status(400).send(res.__(responseErrors))
+        if (!this.isValidPatch(patchErrors)) {
+          delete patchErrors.tree
+          return res.status(400).send(patchErrors)
         }
 
         const validateOperation: boolean = true
@@ -53,10 +49,9 @@ export class PatchHandler {
           jsonPatches,
           validateOperation
         )
-        const updatedDocument = await this.app.route[this.resource].updateOne(
-          { _id: new mongoose.Types.ObjectId(documentId) },
-          { $set: patchedDocument.newDocument },
-          { new: true }
+        const updatedDocument = await this.updateDocument(
+          documentId,
+          patchedDocument
         )
 
         return res.status(200).send(updatedDocument)
@@ -66,62 +61,38 @@ export class PatchHandler {
     })
   }
 
-  /**
-   *
-   * @remarks
-   *
-   *
-   * @param errors
-   * @param res
-   * @param patches
-   */
-  private handleJsonPatchError(
-    errors: jsonpatch.JsonPatchError,
-    res: any,
-    patches: any
-  ): string {
-    let responseErrors: string = ''
-
-    responseErrors = Array.isArray(errors)
-      ? this.getPatchErrors(errors, res, patches)
-      : this.getJsonPatchError(errors, res)
-
-    return responseErrors
+  private documentExists(documentToPatch: any) {
+    return documentToPatch != null
   }
 
   /**
    *
-   * @param errors
-   * @param res
+   * @param patchErrors
    */
-  private getJsonPatchError(errors: jsonpatch.JsonPatchError, res: any) {
-    let responseErrors = ''
-    try {
-      responseErrors =
-        `${errors.name}:` +
-        res.__(errors.message) +
-        ` --> ${JSON.stringify(errors.operation)}`
-    } catch (error) {
-      responseErrors = error
-    }
-    return responseErrors
+  private isValidPatch(patchErrors: jsonpatch.JsonPatchError) {
+    return patchErrors === undefined
   }
 
   /**
    *
-   * @param errors
-   * @param res
-   * @param patches
+   * @param documentId
+   * @param patchedDocument
    */
-  private getPatchErrors(
-    errors: jsonpatch.JsonPatchError & any[],
-    res: any,
-    patches: any
-  ) {
-    let responseErrors: string = ''
-    for (let i: number = 0; i < errors.length; i++) {
-      responseErrors += res.__('Errors in') + ` ${errors[i]} in ${patches[i]}`
-    }
-    return responseErrors
+  private async updateDocument(documentId: any, patchedDocument) {
+    return this.app.route[this.resource].updateOne(
+      { _id: new mongoose.Types.ObjectId(documentId) },
+      { $set: patchedDocument.newDocument },
+      { new: true }
+    )
+  }
+
+  /**
+   *
+   * @param documentId
+   */
+  private async getDocument(documentId: any) {
+    return this.app.route[this.resource].findOne({
+      _id: new mongoose.Types.ObjectId(documentId)
+    })
   }
 }
