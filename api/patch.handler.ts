@@ -30,31 +30,36 @@ export class PatchHandler {
   public registerPatch(): void {
     this.app.patch(`${this.routeName}/:id`, async (req, res) => {
       try {
-        const patches: any = req.body
-        const id: any = req.params.id
+        const jsonPatches: any = req.body
+        const documentId: any = req.params.id
 
-        const doc = await this.app.route[this.resource].findOne({
-          _id: new mongoose.Types.ObjectId(id)
+        const documentToPatch = await this.app.route[this.resource].findOne({
+          _id: new mongoose.Types.ObjectId(documentId)
         })
 
-        const errors = jsonpatch.validate(patches, doc)
-        if (errors !== undefined) {
+        const patchErrors = jsonpatch.validate(jsonPatches, documentToPatch)
+        if (patchErrors !== undefined) {
           const responseErrors: string = this.handleJsonPatchError(
-            errors,
+            patchErrors,
             res,
-            patches
+            jsonPatches
           )
           return res.status(400).send(res.__(responseErrors))
         }
 
-        const documentPatched = jsonpatch.applyPatch(doc, patches, true)
-        const newDoc = await this.app.route[this.resource].updateOne(
-          { _id: new mongoose.Types.ObjectId(id) },
-          { $set: documentPatched.newDocument },
+        const validateOperation: boolean = true
+        const patchedDocument = jsonpatch.applyPatch(
+          documentToPatch,
+          jsonPatches,
+          validateOperation
+        )
+        const updatedDocument = await this.app.route[this.resource].updateOne(
+          { _id: new mongoose.Types.ObjectId(documentId) },
+          { $set: patchedDocument.newDocument },
           { new: true }
         )
 
-        return res.status(200).send(newDoc)
+        return res.status(200).send(updatedDocument)
       } catch (err) {
         return res.status(400).send(res.__(err.message))
       }
@@ -76,15 +81,46 @@ export class PatchHandler {
     patches: any
   ): string {
     let responseErrors: string = ''
-    if (Array.isArray(errors)) {
-      for (let i: number = 0; i < errors.length; i++) {
-        responseErrors += res.__('Errors in') + ` ${errors[i]} in ${patches[i]}`
-      }
-    } else {
+
+    responseErrors = Array.isArray(errors)
+      ? this.getPatchErrors(errors, res, patches)
+      : this.getJsonPatchError(errors, res)
+
+    return responseErrors
+  }
+
+  /**
+   *
+   * @param errors
+   * @param res
+   */
+  private getJsonPatchError(errors: jsonpatch.JsonPatchError, res: any) {
+    let responseErrors = ''
+    try {
       responseErrors =
         `${errors.name}:` +
         res.__(errors.message) +
         ` --> ${JSON.stringify(errors.operation)}`
+    } catch (error) {
+      responseErrors = error
+    }
+    return responseErrors
+  }
+
+  /**
+   *
+   * @param errors
+   * @param res
+   * @param patches
+   */
+  private getPatchErrors(
+    errors: jsonpatch.JsonPatchError & any[],
+    res: any,
+    patches: any
+  ) {
+    let responseErrors: string = ''
+    for (let i: number = 0; i < errors.length; i++) {
+      responseErrors += res.__('Errors in') + ` ${errors[i]} in ${patches[i]}`
     }
     return responseErrors
   }
