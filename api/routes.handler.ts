@@ -16,14 +16,17 @@ export class RoutesHandler {
   }
   protected models: ModelsHandler
   protected logHandler: LogHandler
+
+  protected isDevelopment: boolean
   private expressApp: express.Application
 
   private _collaboratorId: string
 
-  constructor(app: express.Application) {
+  constructor(app: express.Application, isDevelopment: boolean = false) {
     this.expressApp = app
     this.models = new ModelsHandler()
     this.logHandler = new LogHandler(this.expressApp)
+    this.isDevelopment = isDevelopment
   }
 
   public async init() {
@@ -64,7 +67,9 @@ export class RoutesHandler {
 
       route.register(this.expressApp, routeName)
 
-      this.listenOnChanges(collectionName)
+      if (!this.isDevelopment) {
+        this.listenOnChanges(collectionName)
+      }
 
       if (routeModel.methods.includes('patch')) {
         const patch = new patchHandler.PatchHandler(

@@ -8,11 +8,13 @@ import * as supertest from 'supertest'
 import bodyParser = require('body-parser')
 import { RoutesHandler } from '../api/routes.handler'
 import * as server from '../app'
+import { LogHandler } from '../log/log.module'
 import { Route } from '../models/model.module'
 import { TestHelper } from './test.module'
 
 let ashTreeId: string
 describe('Generic Entity Request (tree entity) Http verbs', () => {
+  TestHelper.removeMongooseModels()
   chai.use(chaiHttp)
   dotenv.config()
 
@@ -31,9 +33,12 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
       { new: true }
     )
 
-    const routesHandler: RoutesHandler = new RoutesHandler(app.app)
+    const isDevelopment: boolean = true
+    const routesHandler: RoutesHandler = new RoutesHandler(
+      app.app,
+      isDevelopment
+    )
     routesHandler.registerRoute(treeRouteModel)
-
     const getResult = await chai.request(app.app).get(`/tree`)
     chai.expect(getResult).to.have.status(200)
   })
