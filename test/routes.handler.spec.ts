@@ -61,9 +61,11 @@ describe('Generic Entity Request (tree entity) Http verbs', () => {
   })
 
   it('REMOVE Request: should remove patched "ash" tree entity from', async () => {
-    const patchResult = await chai.request(app.app).delete(`/tree/${ashTreeId}`)
+    const deleteResult = await chai
+      .request(app.app)
+      .delete(`/tree/${ashTreeId}`)
 
-    chai.expect(patchResult).to.have.status(204)
+    chai.expect(deleteResult).to.have.status(204)
   })
 
   it('registerRoutes(): should register and mount phone and smartwatch routes', async () => {
@@ -178,7 +180,7 @@ describe('Testing RoutesHandler functions:', async () => {
     )
   })
 
-  it('setcollaboratorId(): should set collaboratorId RoutesHandler field from request header "collaboratorId"', (done) => {
+  it('setcollaboratorId(): should set collaboratorId RoutesHandler field from request header "collaboratorId"', done => {
     TestHelper.removeMongooseModels()
 
     const routesHandler: RoutesHandler = new RoutesHandler(app.app)
@@ -196,7 +198,7 @@ describe('Testing RoutesHandler functions:', async () => {
         .expect(routesHandler.collaboratorId)
         .is.equal(collaboratorId.toString())
     )
-    
+
     done()
   })
 

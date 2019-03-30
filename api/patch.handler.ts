@@ -79,7 +79,7 @@ export class PatchHandler {
    * @param patchedDocument
    */
   private async updateDocument(documentId: any, patchedDocument) {
-    return this.app.route[this.resource].updateOne(
+    return mongoose.connection.models[this.resource].updateOne(
       { _id: new mongoose.Types.ObjectId(documentId) },
       { $set: patchedDocument.newDocument },
       { new: true }
@@ -91,7 +91,7 @@ export class PatchHandler {
    * @param documentId
    */
   private async getDocument(documentId: any) {
-    return this.app.route[this.resource].findOne({
+    return mongoose.connection.models[this.resource].findOne({
       _id: new mongoose.Types.ObjectId(documentId)
     })
   }

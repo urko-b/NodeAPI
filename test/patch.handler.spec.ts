@@ -3,6 +3,7 @@ import chaiHttp = require('chai-http')
 import * as dotenv from 'dotenv'
 import 'mocha'
 import * as mongoose from 'mongoose'
+import * as supertest from 'supertest'
 import { PatchHandler } from '../api/patch.handler'
 import * as server from '../app'
 
@@ -19,18 +20,44 @@ describe('Testing patch.handler', () => {
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
   it('registerPatch(): ', async () => {
-    const patchHandler = new PatchHandler(app.app, 'book', 'book')
+    let insertedBookId: string
+    try {
+      const bookCollection = 'book'
+      const patchHandler = new PatchHandler(
+        app.app,
+        bookCollection,
+        bookCollection
+      )
+      patchHandler.registerPatch()
 
-    patchHandler.registerPatch()
+      const cleanCodeBook = {
+        author: {
+          name: 'Robert',
+          surname: 'C. Martin'
+        },
+        description:
+          'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees',
+        title: 'Clean code'
+      }
 
-    const getResult = await chai.request(app.app).get(`/book`)
-    console.log('getResult.body', getResult.body)
-    const patchResult = await chai
-      .request(app.app)
-      .patch(`/book/${ashTreeId}`)
-      .set('content-type', 'application/json')
-      .send('[{"op": "replace", "path": "/title", "value": "newTitle"}]')
+      const bookSchema: any = { author: {}, description: String, title: String }
+      const mongooseSchema = new mongoose.Schema(bookSchema)
+      mongoose.model(bookCollection, mongooseSchema, bookCollection)
 
-    chai.expect(patchResult).to.have.status(200)
+      const insertedBook = await mongoose.connection.models.book.insertMany([
+        cleanCodeBook
+      ])
+      insertedBookId = insertedBook[0]._id
+
+      supertest(app.app)
+        .patch(`/${bookCollection}/${insertedBookId}`)
+        .set('content-type', 'application/json')
+        .send('[{"op": "replace", "path": "/title", "value": "newTitle"}]')
+        .expect(200)
+    } finally {
+      await mongoose.connection.models.book.findOneAndDelete({
+        _id: { $eq: insertedBookId }
+      })
+    }
   })
 })
