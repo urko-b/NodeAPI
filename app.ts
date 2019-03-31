@@ -59,6 +59,14 @@ export class App {
     this.app.use(bodyParser.json())
   }
 
+  public initi18n(): void {
+    i18n.configure({
+      cookie: 'language-cookie',
+      directory: __dirname + '/locales',
+      locales: ['en', 'es', 'fr', 'es', 'pt', 'de']
+    })
+  }
+
   private tokenMiddleware = async (req, res, next) => {
     const secret: string = req.header('token')
     if (secret === undefined) {
@@ -73,14 +81,6 @@ export class App {
     }
 
     next()
-  }
-
-  private initi18n(): void {
-    i18n.configure({
-      locales: ['en', 'es', 'fr', 'es', 'pt', 'de'],
-      cookie: 'language-cookie',
-      directory: __dirname + '/locales'
-    })
   }
 
   private i18nSetLocaleMiddleware(req, res, next) {

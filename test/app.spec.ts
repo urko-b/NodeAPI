@@ -1,4 +1,5 @@
 import * as chai from 'chai'
+import * as i18n from 'i18n'
 import 'mocha'
 import * as mongoose from 'mongoose'
 import { App } from '../app'
@@ -14,6 +15,16 @@ describe('Testing app', () => {
       chai.expect(mongoose.connection.models.system_tokens).not.be.undefined
     )
     TestHelper.removeMongooseModels()
+    done()
+  })
+
+  it('initi18n(): should create some locales', done => {
+    const port: string = '1112'
+    const app = new App(port)
+    TestHelper.removei18nLocales()
+    app.initi18n()
+
+    chai.assert(chai.expect(i18n.getLocales()).to.be.an('array').not.be.empty)
     done()
   })
 

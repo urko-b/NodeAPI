@@ -1,4 +1,6 @@
+import * as i18n from 'i18n'
 import * as mongoose from 'mongoose'
+
 export class TestHelper {
   /**
    * @remarks
@@ -32,5 +34,9 @@ export class TestHelper {
     return !!app._router.stack.filter(layer => {
       return layer && layer.handle && layer.handle.name === name
     }).length
+  }
+
+  public static removei18nLocales = () => {
+    i18n.configure({ locales: [] })
   }
 }
