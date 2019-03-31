@@ -63,20 +63,6 @@ describe('Testing app', () => {
     done()
   })
 
-  it('useMiddlewares(): should use tokenMiddleware', done => {
-    const port: string = '1111'
-    const app = new App(port)
-
-    app.useMiddlewares()
-    const tokenMiddleware = TestHelper.middlewareExists(
-      app.app,
-      'tokenMiddleware'
-    )
-
-    chai.assert(chai.expect(tokenMiddleware).is.true)
-    done()
-  })
-
   it('useMiddlewares(): should use i18n', done => {
     const port: string = '1111'
     const app = new App(port)
