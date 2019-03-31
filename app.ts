@@ -39,7 +39,27 @@ export class App {
     })
   }
 
-  public tokenMiddleware = async (req, res, next) => {
+  public useMiddlewares(): void {
+    this.app.use(morgan('dev'))
+
+    this.useBodyParser()
+
+    this.app.use(methodOverride())
+
+    this.app.use(this.tokenMiddleware)
+
+    this.app.use(i18n.init)
+    this.app.use(this.i18nSetLocaleMiddleware)
+  }
+
+  public useBodyParser() {
+    this.app.use(bodyParser.urlencoded({ extended: true }))
+    this.app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
+    this.app.use(bodyParser.json({ type: 'application/json-patch' }))
+    this.app.use(bodyParser.json())
+  }
+
+  private tokenMiddleware = async (req, res, next) => {
     const secret: string = req.header('token')
     if (secret === undefined) {
       res.status(401)
@@ -61,26 +81,6 @@ export class App {
       cookie: 'language-cookie',
       directory: __dirname + '/locales'
     })
-  }
-
-  private useMiddlewares(): void {
-    this.app.use(morgan('dev'))
-
-    this.useBodyParser()
-
-    this.app.use(methodOverride())
-
-    this.app.use(this.tokenMiddleware)
-
-    this.app.use(i18n.init)
-    this.app.use(this.i18nSetLocaleMiddleware)
-  }
-
-  private useBodyParser() {
-    this.app.use(bodyParser.urlencoded({ extended: true }))
-    this.app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
-    this.app.use(bodyParser.json({ type: 'application/json-patch' }))
-    this.app.use(bodyParser.json())
   }
 
   private i18nSetLocaleMiddleware(req, res, next) {

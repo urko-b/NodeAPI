@@ -27,4 +27,13 @@ export class TestHelper {
   public static removeMongooseModelAuditLog = () => {
     delete mongoose.connection.models.audit_log
   }
+
+  public static middlewareExists(app, name) {
+    return !!app._router.stack.filter(layer => {
+      if (layer && layer.handle) {
+        console.log('layer.handle', layer.handle)
+      }
+      return layer && layer.handle && layer.handle.name === name
+    }).length
+  }
 }

@@ -8,6 +8,7 @@ import { PatchHandler } from '../api/patch.handler'
 import * as server from '../app'
 
 import bodyParser = require('body-parser')
+import { TestHelper } from './test.module'
 
 const ashTreeId: string = '5c861457ec435215e003f82a'
 describe('Testing patch.handler', () => {
@@ -20,6 +21,7 @@ describe('Testing patch.handler', () => {
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
   it('registerPatch(): ', async () => {
+    TestHelper.removeMongooseModels()
     let insertedBookId: string
     try {
       const bookCollection = 'book'
