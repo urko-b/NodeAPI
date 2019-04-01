@@ -24,7 +24,7 @@
     "ext": "ts"
   },
   "author": "Pablo Guerrero González",
-  "license": "ISC",
+  "license": "EULA",
   "description": "",
   "dependencies": {
     "@types/node": "^11.9.4",

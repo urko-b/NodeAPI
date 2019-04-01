@@ -4,7 +4,8 @@ import * as server from './app'
 
 dotenv.config()
 
-mongoose.connect(process.env.DB, connectionError => {
+
+mongoose.connect(process.env.DB, {useFindAndModify: false}, connectionError => {
   if (connectionError) {
     return console.error(
       `Error while connecting to database: ${connectionError}`
