@@ -65,19 +65,10 @@ export class PatchHandler {
     return documentToPatch != null
   }
 
-  /**
-   *
-   * @param patchErrors
-   */
   private isValidPatch(patchErrors: jsonpatch.JsonPatchError) {
     return patchErrors === undefined
   }
 
-  /**
-   *
-   * @param documentId
-   * @param patchedDocument
-   */
   private async updateDocument(documentId: any, patchedDocument) {
     return mongoose.connection.models[this.resource].updateOne(
       { _id: new mongoose.Types.ObjectId(documentId) },
@@ -86,10 +77,6 @@ export class PatchHandler {
     )
   }
 
-  /**
-   *
-   * @param documentId
-   */
   private async getDocument(documentId: any) {
     return mongoose.connection.models[this.resource].findOne({
       _id: new mongoose.Types.ObjectId(documentId)

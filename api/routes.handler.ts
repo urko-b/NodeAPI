@@ -41,7 +41,9 @@ export class RoutesHandler {
 
   /**
    *
-   * @param routeModel {@link Route}
+   * @param routeModel {@link Route} Entity to mount api routing
+   * @remarks 
+   * Set mongoose model for this entity and mount each routing (GET, POST, PUT, DELETE, PATCH)
    */
   public registerRoute(routeModel: Route) {
     let collectionName: string
@@ -144,9 +146,13 @@ export class RoutesHandler {
    * set our private field _collaboratorId with that value
    */
   public setCollaboratorId = (req, res, next) => {
-    const collaboratorId: string = req.get('collaboratorId')
-    this._collaboratorId = collaboratorId
-    next()
+    try {
+      const collaboratorId: string = req.get('collaboratorId')
+      this._collaboratorId = collaboratorId
+      next()
+    } catch (error) {
+      next()
+    }
   }
 
   /**
@@ -211,7 +217,9 @@ export class RoutesHandler {
 
   /**
    *
-   * @param routesToUnsync
+   * @param routesToUnsync array of objects that represent the routes to unsync
+   * @remarks
+   * Return a string array with the names of the collections to unsync
    */
   public getRoutesToUnsync(routesToUnsync: any[]): string[] {
     let routesToUnsyncNames: string[]
@@ -223,7 +231,9 @@ export class RoutesHandler {
 
   /**
    *
-   * @param routesToSync
+   * @param routesToSync array of objects that represent the routes to sync
+   * @remarks
+   * Return a string array with the names of the collections to sync
    */
   public getRoutesToSync(routesToSync: any[]): string[] {
     let routesToSyncNames: string[]
@@ -235,7 +245,9 @@ export class RoutesHandler {
 
   /**
    *
-   * @param collectionName
+   * @param collectionName The collection to listen to changes
+   * @remarks 
+   * Insert a document on audit_log collection when update/delete is executed
    */
   private listenOnChanges(collectionName: string): void {
     mongoose

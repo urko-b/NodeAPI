@@ -30,7 +30,7 @@ export class App {
     this.mountRoutes().catch(err => {
       console.warn(err)
     })
-    this.syncHandler.syncSchemas()
+    this.syncHandler.setSyncSchemaRoute()
   }
 
   public run = () => {

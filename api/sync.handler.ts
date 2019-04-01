@@ -9,11 +9,11 @@ export class SyncHandler {
   }
 
   /**
-   * @api{get}/SyncSchema Sync the api router with the schemas collection
+   * @api{get}/setSyncSchemaRoute Sync the api router with the schemas collection
    * @apiVersion 1.0.0
    * @apiPermission Admin
    */
-  public syncSchemas() {
+  public setSyncSchemaRoute() {
     this.routesHandler.app.get(
       `${this.apiRoute}/SyncSchema`,
       async (req, res, next) => {

@@ -25,7 +25,7 @@ describe('Testing sync.handler', () => {
     const routesHandler = new RoutesHandler(app.app)
     const syncHandler = new SyncHandler(routesHandler)
     await routesHandler.init()
-    syncHandler.syncSchemas()
+    syncHandler.setSyncSchemaRoute()
 
     const apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
 

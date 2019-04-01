@@ -60,9 +60,6 @@ export class SchemaHandler {
     return syncSchema
   }
 
-  /**
-   *
-   */
   public removeCollections = (syncSchema: SyncSchema) => {
     for (const unsync of syncSchema.schemasToUnsync) {
       for (const c of this.collections) {
@@ -114,13 +111,10 @@ export class SchemaHandler {
     )
   }
 
-  /**
-   *
-   */
-  private comparer = otherArray => {
+  private comparer = arrayToCompare => {
     return current => {
       return (
-        otherArray.filter(other => {
+        arrayToCompare.filter(other => {
           return other[this.collectionName] === current[this.collectionName]
         }).length === 0
       )

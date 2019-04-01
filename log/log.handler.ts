@@ -8,11 +8,25 @@ export class LogHandler {
   protected model: mongoose.Model<any>
   private readonly AuditLog: string = 'audit_log'
 
-  /**
-   *
-   */
   constructor(app: express.Application) {
     this.app = app
+  }
+
+  public init() {
+    this.schema = new mongoose.Schema({
+      collaborator_id: mongoose.Types.ObjectId,
+      date: {
+        default: Date.now(),
+        type: Date
+      },
+      operation: String,
+      collection_name: String,
+      payload: String,
+      old_value: String,
+      new_value: String
+    })
+
+    this.model = mongoose.model(this.AuditLog, this.schema, this.AuditLog)
   }
 
   /**
@@ -45,7 +59,6 @@ export class LogHandler {
       .exec()
       .then(doc => {
         if (doc === undefined && doc === null) {
-          console.warn('log error')
           throw new Error('Error while remove log')
         }
         return true
@@ -56,20 +69,4 @@ export class LogHandler {
       })
   }
 
-  public init() {
-    this.schema = new mongoose.Schema({
-      collaborator_id: mongoose.Types.ObjectId,
-      date: {
-        default: Date.now(),
-        type: Date
-      },
-      operation: String,
-      collection_name: String,
-      payload: String,
-      old_value: String,
-      new_value: String
-    })
-
-    this.model = mongoose.model(this.AuditLog, this.schema, this.AuditLog)
-  }
 }
