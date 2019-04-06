@@ -5,20 +5,20 @@
  * @apiGroup Entity
  *
  * 
- * @apiSuccess {object} An object with the information aboute the routes that has been synched and unsynched (added or removed from routing)
+ * @apiSuccess {object} An object with the information aboute the routes that has been synced and unsynced (added or removed from routing)
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "synchedRoutes": "All up to date",
- *      "unsynchedRoutes": "All up to date"
+ *      "syncedRoutes": "All up to date",
+ *      "unsyncedRoutes": "All up to date"
  *     }
  *
  * @apiSuccessExample {json} Success-Response:
  *     HTTP/1.1 200 OK
  *     {
- *      "synchedRoutes": "countries",
- *      "unsynchedRoutes": "All up to date"
+ *      "syncedRoutes": "countries",
+ *      "unsyncedRoutes": "All up to date"
  *     }
  *
  * 

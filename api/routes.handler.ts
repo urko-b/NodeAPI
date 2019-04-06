@@ -89,12 +89,12 @@ export class RoutesHandler {
 
   /**
    * @remarks
-   * This function get synched/unsynched models from an instance of {@link SyncRoutes}
+   * This function get synced/unsynced models from an instance of {@link SyncRoutes}
    * Then, it checks what routes should "sync" and it register to api endpoints.
    * And if there is any route to "unsync" it will remove from api endpoints.
    *
-   * @returns Object with two fields: synchedRoutes and unsynchedRoutes.
-   * Each string field will print wich collections has been synched/unsynched.
+   * @returns Object with two fields: syncedRoutes and unsyncedRoutes.
+   * Each string field will print wich collections has been synced/unsynced.
    * If there aren't any to sync/unsync it will output "All up to date"
    */
   public async syncRoutes(): Promise<any> {
@@ -105,19 +105,19 @@ export class RoutesHandler {
 
     this.registerRoutes(routesToSync)
     const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync)
-    const synchedRoutes = this.getSynchedRoutes(routesToSyncNames)
+    const syncedRoutes = this.getSyncedRoutes(routesToSyncNames)
 
     const routesToUnsyncNames: string[] = this.getRoutesToUnsync(routesToUnsync)
     this.removeRoutes(routesToUnsyncNames)
-    const unsynchedRoutes = this.getUnsynchedRoutes(routesToUnsyncNames)
+    const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames)
 
     const result: any = {}
-    if (synchedRoutes !== '') {
-      result.synchedRoutes = synchedRoutes
+    if (syncedRoutes !== '') {
+      result.syncedRoutes = syncedRoutes
     }
 
-    if (unsynchedRoutes !== '') {
-      result.unsynchedRoutes = unsynchedRoutes
+    if (unsyncedRoutes !== '') {
+      result.unsyncedRoutes = unsyncedRoutes
     }
     return result
   }
@@ -160,9 +160,9 @@ export class RoutesHandler {
    * @param routesToSync array of string with the routes registered to api
    * @returns "All up to date" if routesToSync is empty,
    * instead, it will output a string with all routes
-   * synched each separated by comma
+   * synced each separated by comma
    */
-  public getSynchedRoutes = (routesToSync: string[]): string => {
+  public getSyncedRoutes = (routesToSync: string[]): string => {
     if (
       routesToSync === undefined ||
       routesToSync === null ||
@@ -179,9 +179,9 @@ export class RoutesHandler {
    * @param routesToUnsync array of string with the routes registered to api
    * @returns "All up to date" if routesToUnsync is empty,
    * instead, it will output a string with all routes
-   * "unsynched" each separated by comma
+   * "unsynced" each separated by comma
    */
-  public getUnsynchedRoutes = (routesToUnsync: string[]): string => {
+  public getUnsyncedRoutes = (routesToUnsync: string[]): string => {
     if (
       routesToUnsync === undefined ||
       routesToUnsync === null ||

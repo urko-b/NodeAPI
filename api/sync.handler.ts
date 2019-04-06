@@ -18,8 +18,8 @@ export class SyncHandler {
       `${this.apiRoute}/SyncSchema`,
       async (req, res, next) => {
         try {
-          const schemasSynched = await this.routesHandler.syncRoutes()
-          return res.status(200).send(schemasSynched)
+          const schemasSynced = await this.routesHandler.syncRoutes()
+          return res.status(200).send(schemasSynced)
         } catch (error) {
           console.error('error', error)
           return res.status(400).send(error)
