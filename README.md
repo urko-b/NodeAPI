@@ -36,6 +36,22 @@ npx patch-package
 
 ---
 
+## .env File
+**You must create or have a .env file with this configuration:**
+```sh
+NODE_ENV="development"
+PORT=3000
+WEBAPINAME="webapi"
+VERSION=1.0
+
+DB="mongodb://..."
+```
+
+
+
+
+---
+
 ## Set Up Documentation
 
 **First, go to apidoc directory:**
