@@ -58,9 +58,21 @@ apidoc
 
 Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open index.html and see the documentation
 
+---
+
 ## Database Requirements
 
 **You must create a collection called "collections_schemas"** Each document of this collection must contains two fields:
 
 1. **collection_name (string)** Name of a collection from our database
 2. **collection_schema (string)** An object that represents the schema of the collection. It will be a Mongoose schema not mongodb schema style
+
+**Remember to use double quotes, it's strictly necessary**
+*Example:* 
+```sh
+{   
+    "collection_name": "crag", 
+    "collection_schema": "{"name":{"type":"string","required":true,"unique":true},"description":{"type":"string","required":true},"sectors":[{"name":{"type":"string"},"routes":[{}]}],"location":{"type":"Object","structure":{" latitude":{"type":"number","required":true},"longitude":{"type":"number","required":true}},"required":true}}"
+}
+```
+
