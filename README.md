@@ -65,7 +65,9 @@ Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open i
 **You must create a collection called "collections_schemas"** Each document of this collection must contains two fields:
 
 1. **collection_name (string)** Name of a collection from our database
-2. **collection_schema (string)** An object that represents the schema of the collection. It will be a Mongoose schema not mongodb schema style
+2. **collection_schema (string)** An object that represents the schema of the collection. It will be a [Mongoose schema] not mongodb schema style
+
+[Mongoose schema]: https://mongoosejs.com/docs/guide.html
 
 **Remember to use double quotes, it's strictly necessary**
 *Example:* 
@@ -73,6 +75,19 @@ Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open i
 {   
     "collection_name": "crag", 
     "collection_schema": "{"name":{"type":"string","required":true,"unique":true},"description":{"type":"string","required":true},"sectors":[{"name":{"type":"string"},"routes":[{}]}],"location":{"type":"Object","structure":{" latitude":{"type":"number","required":true},"longitude":{"type":"number","required":true}},"required":true}}"
+}
+```
+
+**You must also have a collection called "system_tokens" in your MongoDB Database** The api use this collection to authorize each request. This collection must contains 2 fields:
+
+1. **name (string)** A name that describes this token
+2. **system_token (string)** Any kind of authorization token you want to use.
+
+*Example:* 
+```sh
+{   
+    "name": "development", 
+    "collection_schema": "MLwnbMfVskkFB$HrC<S6Wkf<_'^z)gl0a5=^cr!@;NApu:_.qPIM`V'H!tGK.?["
 }
 ```
 
