@@ -42,7 +42,7 @@ export class RoutesHandler {
   /**
    *
    * @param routeModel {@link Route} Entity to mount api routing
-   * @remarks 
+   * @remarks
    * Set mongoose model for this entity and mount each routing (GET, POST, PUT, DELETE, PATCH)
    */
   public registerRoute(routeModel: Route) {
@@ -98,28 +98,35 @@ export class RoutesHandler {
    * If there aren't any to sync/unsync it will output "All up to date"
    */
   public async syncRoutes(): Promise<any> {
-    const syncRoutes: SyncRoutes = await this.models.syncRoutes()
+    try {
+      const syncRoutes: SyncRoutes = await this.models.syncRoutes()
 
-    const routesToUnsync = syncRoutes.routesToUnsync
-    const routesToSync = syncRoutes.routesToSync
+      const routesToUnsync = syncRoutes.routesToUnsync
+      const routesToSync = syncRoutes.routesToSync
 
-    this.registerRoutes(routesToSync)
-    const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync)
-    const syncedRoutes = this.getSyncedRoutes(routesToSyncNames)
+      this.registerRoutes(routesToSync)
+      const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync)
+      const syncedRoutes = this.getSyncedRoutes(routesToSyncNames)
 
-    const routesToUnsyncNames: string[] = this.getRoutesToUnsync(routesToUnsync)
-    this.removeRoutes(routesToUnsyncNames)
-    const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames)
+      const routesToUnsyncNames: string[] = this.getRoutesToUnsync(
+        routesToUnsync
+      )
+      this.removeRoutes(routesToUnsyncNames)
+      const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames)
 
-    const result: any = {}
-    if (syncedRoutes !== '') {
-      result.syncedRoutes = syncedRoutes
+      const result: any = {}
+      if (syncedRoutes !== '') {
+        result.syncedRoutes = syncedRoutes
+      }
+
+      if (unsyncedRoutes !== '') {
+        result.unsyncedRoutes = unsyncedRoutes
+      }
+
+      return result
+    } catch (error) {
+      throw error
     }
-
-    if (unsyncedRoutes !== '') {
-      result.unsyncedRoutes = unsyncedRoutes
-    }
-    return result
   }
 
   /**
@@ -246,7 +253,7 @@ export class RoutesHandler {
   /**
    *
    * @param collectionName The collection to listen to changes
-   * @remarks 
+   * @remarks
    * Insert a document on audit_log collection when update/delete is executed
    */
   private listenOnChanges(collectionName: string): void {
@@ -254,22 +261,26 @@ export class RoutesHandler {
       .model(collectionName)
       .collection.watch()
       .on('change', async data => {
-        if (
-          data.operationType !== 'update' &&
-          data.operationType !== 'delete'
-        ) {
-          return
-        }
+        try {
+          if (
+            data.operationType !== 'update' &&
+            data.operationType !== 'delete'
+          ) {
+            return
+          }
 
-        const log: Log = new Log(
-          new mongoose.Types.ObjectId(this._collaboratorId),
-          data.operationType,
-          collectionName,
-          JSON.stringify(data),
-          null,
-          JSON.stringify(data.updateDescription)
-        )
-        await this.logHandler.insertOne(log)
+          const log: Log = new Log(
+            new mongoose.Types.ObjectId(this._collaboratorId),
+            data.operationType,
+            collectionName,
+            JSON.stringify(data),
+            null,
+            JSON.stringify(data.updateDescription)
+          )
+          await this.logHandler.insertOne(log)
+        } catch (error) {
+          throw error
+        }
       })
   }
 }

@@ -68,19 +68,26 @@ export class App {
   }
 
   private tokenMiddleware = async (req, res, next) => {
-    const secret: string = req.header('token')
-    if (secret === undefined) {
-      res.status(401)
-      next('Unauthorized')
-    }
+    try {
+      const secret: string = req.header('token')
+      if (secret === undefined) {
+        res.status(401)
+        next('Unauthorized')
+      }
 
-    const isTokenValid: boolean = await this.authController.isTokenValid(secret)
-    if (isTokenValid === false) {
-      res.status(401)
-      next('The token provided is not valid')
-    }
+      const isTokenValid: boolean = await this.authController.isTokenValid(
+        secret
+      )
+      if (isTokenValid === false) {
+        res.status(401)
+        next('The token provided is not valid')
+      }
 
-    next()
+      next()
+    } catch (error) {
+      console.error(error)
+      next()
+    }
   }
 
   private i18nSetLocaleMiddleware(req, res, next) {

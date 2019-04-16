@@ -29,39 +29,44 @@ export class ModelsHandler {
   }
 
   public async syncRoutes(): Promise<SyncRoutes> {
-    const syncSchema = await this.schemaHandler.syncSchema()
+    try {
+      const syncSchema = await this.schemaHandler.syncSchema()
 
-    const schemasToSync = syncSchema.schemasToSync
-    const schemasToUnsync = syncSchema.schemasToUnsync
+      const schemasToSync = syncSchema.schemasToSync
+      const schemasToUnsync = syncSchema.schemasToUnsync
 
-    const syncRoutes: SyncRoutes = new SyncRoutes()
+      const syncRoutes: SyncRoutes = new SyncRoutes()
 
-    if (schemasToSync.length > 0) {
-      const routes = new Array<Route>()
+      if (schemasToSync.length > 0) {
+        const routes = new Array<Route>()
 
-      for (const collection of schemasToSync) {
-        const collectionName: string = collection.collection_name
-        const collectionSchema: string = collection.collection_schema
-        routes.push(
-          new Route(
-            collectionName,
-            this.methods,
-            `${this.apiRoute}/${collectionName}`,
-            collectionSchema,
-            { new: true }
+        for (const collection of schemasToSync) {
+          const collectionName: string = collection.collection_name
+          const collectionSchema: string = collection.collection_schema
+          routes.push(
+            new Route(
+              collectionName,
+              this.methods,
+              `${this.apiRoute}/${collectionName}`,
+              collectionSchema,
+              { new: true }
+            )
           )
-        )
+        }
+
+        this._routes = this._routes.concat(routes)
+        syncRoutes.routesToSync = routes
       }
 
-      this._routes = this._routes.concat(routes)
-      syncRoutes.routesToSync = routes
-    }
+      if (schemasToUnsync.length > 0) {
+        syncRoutes.routesToUnsync = schemasToUnsync.map(s => s.collection_name)
+      }
 
-    if (schemasToUnsync.length > 0) {
-      syncRoutes.routesToUnsync = schemasToUnsync.map(s => s.collection_name)
+      return syncRoutes
+    } catch (error) {
+      console.error(error)
+      throw error
     }
-
-    return syncRoutes
   }
 
   public fillModels(): void {

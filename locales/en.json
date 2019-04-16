@@ -14,5 +14,6 @@
 	"OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/title/com\",\"value\":\"The art of Patch\"}": "OPERATION_PATH_UNRESOLVABLE: \n        Cannot perform the operation at a path that does not exist\n         --> {\"op\":\"replace\",\"path\":\"/title/com\",\"value\":\"The art of Patch\"}",
 	"Cannot read property 'titasdle' of null": "Cannot read property 'titasdle' of null",
 	"Cannot read property 'titleaa' of null": "Cannot read property 'titleaa' of null",
-	"Document requested could not be found": "Document requested could not be found"
+	"Document requested could not be found": "Document requested could not be found",
+	"Cannot read property 'findOne' of undefined": "Cannot read property 'findOne' of undefined"
 }

@@ -25,16 +25,12 @@ export class SchemaHandler {
    *
    */
   public fillSchema = async () => {
-    await this.model
-      .find({})
-      .exec()
-      .then(doc => {
-        this.collections = doc
-      })
-      .catch(error => {
-        console.error(error)
-        throw error
-      })
+    try {
+      this.collections = await this.model.find({})
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
   }
 
   /**
@@ -48,16 +44,21 @@ export class SchemaHandler {
    * to add and remove to our collections_schemas array
    */
   public syncSchema = async () => {
-    const syncSchema: SyncSchema = await this.getSchemasToSync()
-    if (syncSchema.schemasToSync.length > 0) {
-      this.collections = this.collections.concat(syncSchema.schemasToSync)
-    }
+    try {
+      const syncSchema: SyncSchema = await this.getSchemasToSync()
+      if (syncSchema.schemasToSync.length > 0) {
+        this.collections = this.collections.concat(syncSchema.schemasToSync)
+      }
 
-    if (syncSchema.schemasToUnsync.length > 0) {
-      this.removeCollections(syncSchema)
-    }
+      if (syncSchema.schemasToUnsync.length > 0) {
+        this.removeCollections(syncSchema)
+      }
 
-    return syncSchema
+      return syncSchema
+    } catch (error) {
+      console.error(error)
+      throw error
+    }
   }
 
   public removeCollections = (syncSchema: SyncSchema) => {

@@ -10,7 +10,6 @@ import * as server from '../app'
 import bodyParser = require('body-parser')
 import { TestHelper } from './test.module'
 
-const ashTreeId: string = '5c861457ec435215e003f82a'
 describe('Testing patch.handler', () => {
   chai.use(chaiHttp)
   dotenv.config()
@@ -20,7 +19,8 @@ describe('Testing patch.handler', () => {
   app.app.use(bodyParser.json({ type: 'application/vnd.api+json' }))
   app.app.use(bodyParser.json({ type: 'application/json-patch' }))
   app.app.use(bodyParser.json())
-  it('registerPatch(): ', async () => {
+
+  it('registerPatch() ', async () => {
     TestHelper.removeMongooseModels()
     let insertedBookId: string
     try {

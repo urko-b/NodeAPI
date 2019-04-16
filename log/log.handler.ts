@@ -34,10 +34,12 @@ export class LogHandler {
    * @param log {@link Log}
    */
   public async insertOne(log: Log) {
-    await this.model.insertMany([log]).catch(err => {
-      console.warn('log error', err)
-      throw err
-    })
+    try {
+      await this.model.insertMany([log])
+    } catch (error) {
+      console.error('log error', error)
+      throw error
+    }
   }
 
   public async findOne(filter: object) {
@@ -68,5 +70,4 @@ export class LogHandler {
         throw err
       })
   }
-
 }
