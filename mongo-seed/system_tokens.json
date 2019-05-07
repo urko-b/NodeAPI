@@ -1,1 +1,3 @@
-{ "_id" : { "$oid" : "5c83951663bad113d8b5aaec" }, "name" : "development", "system_token" : "MLwnbMfVskkFB$HrC<S6Wkf<_'^z)gl0a5=^cr!@;NApu:_.qPIM`V'H!tGK.?[" }
+[
+    { "_id" : { "$oid" : "5c83951663bad113d8b5aaec" }, "name" : "development", "system_token" : "MLwnbMfVskkFB$HrC<S6Wkf<_'^z)gl0a5=^cr!@;NApu:_.qPIM`V'H!tGK.?[" }
+]
