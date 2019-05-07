@@ -19,10 +19,13 @@ unittest:
     WEBAPINAME: "webapi"
     VERSION: 1
   before_script:
+    - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+    - echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-4.0.list
     - apt-get update
     - apt-get -y upgrade
     - apt-get -y install git
     - apt-get -y install python make
+    - apt-get install -y mongodb-org
     - mongoimport --host mongo --db NodeAPI_test --collection audit_log --type json --file mongo-seed/audit_log.json --jsonArray
     - mongoimport --host mongo --db NodeAPI_test --collection book --type json --file mongo-seed/book.json --jsonArray
     - mongoimport --host mongo --db NodeAPI_test --collection collaborators --type json --file mongo-seed/collaborators.json --jsonArray
