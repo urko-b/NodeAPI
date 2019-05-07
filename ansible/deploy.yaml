@@ -1,0 +1,68 @@
+---
+- hosts: grupo-ovh
+
+  vars:
+
+    dest_base_dir: "/home/sevensense"
+    dest_repo_dir: "{{ dest_base_dir }}/7sense_restful_api"
+
+
+  tasks:
+
+    - name: 'Comprobamos si ya existe el directorio'
+      stat:
+        path: "{{ dest_base_dir }}"
+      register: checked_file
+
+
+    - name: 'Valor cuando no existe checked_file'
+      debug:
+        var: checked_file
+      when: checked_file is defined and not checked_file.stat.exists
+
+
+    - name: 'mkdir del archivo'
+      file:
+        path: "{{ dest_base_dir }}"
+        state: directory
+        #owner: root
+        #group: root
+        mode: 0755
+      when: checked_file.stat.exists is defined and not checked_file.stat.exists
+
+
+    - name: "Clonar o actualizar el repo a la rama indicada por version"
+      git:
+        repo: 'https://${GITLAB_DEPLOY_TOKEN_USER}:${GITLAB_DEPLOY_TOKEN_PASS}@gitlab.com/7sense.global/7sense_restful_api.git'
+        dest: "{{ dest_repo_dir }}"
+        version: develop
+        force: yes
+
+
+    - name: "Copiar .env"
+      shell: |
+        cp .env.tpl .env
+      args:
+        chdir: "{{ dest_repo_dir }}"
+      when: checked_file.stat.exists is defined and not checked_file.stat.exists
+
+
+    - name: Ansible create test config file
+      copy:
+        dest: "{{ dest_repo_dir }}/.env"
+        content: |
+          PORT=3000
+          RESTFUL_API_PUBLIC_PORT=3200
+          MONGO_DB_PORT=27017
+          RESTFUL_DB=NodeAPI
+          MONGO_DB_NAME=NodeAPI
+          MONGO_URL=mongodb://mongodb:27017/NodeAPI
+          MONGO_URL_TEST=mongodb://mongodb:27017/NodeAPI_test
+          NODE_ENV=development
+          DCOMPOSE_FILE="ovh"
+
+    - name: "Ejecutar docker-compose"
+      shell: |
+        docker-compose --file docker-compose-deploygitlab.yml up --build -d
+      args:
+        chdir: "{{ dest_repo_dir }}"

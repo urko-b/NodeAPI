@@ -5,10 +5,13 @@
   "scripts": {
     "start": "node -r ts-node/register ./index.ts",
     "start:watch": "nodemon -r dotenv/config ./index.js",
+    "tsc": "node_modules/.bin/tsc",
+    "prod": "node_modules/.bin/tsc && nodemon --config nodemon.json ./dist/index.js",
     "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start_local": "node -r dotenv/config ./index.js",
-    "test": "nodemon --exec mocha -timeout 10000  -r ts-node/register test/**/*.spec.ts"
+    "dev": "nodemon --config nodemon.json --inspect=0.0.0.0:5858 -L index.js",
+    "test": "mocha -timeout 10000  -r ts-node/register test/**/*.spec.ts"
   },
   "nodemonConfig": {
     "ignore": [
@@ -39,6 +42,7 @@
     "patch-package": "6.0.4",
     "request": "^2.88.0",
     "ts-node": "^8.0.2",
+    "tslint": "^5.14.0",
     "typescript": "^3.3.3"
   },
   "devDependencies": {

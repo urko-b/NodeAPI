@@ -1,0 +1,70 @@
+stages:
+  - unittest
+  - deploy-develop
+
+unittest:
+  stage: unittest
+  allow_failure: true
+  tags:
+    - docker
+  image: node:10-jessie
+  services:
+    - mongo:latest
+  variables:
+    MONGO_SERVER: mongodb://mongo:27017
+    MONGO_SERVER_TEST: mongodb://mongo:27017
+    DB_NAME: webapi_db_test
+    DB_NAME_TEST: webapi_db_test
+    #SECRET_HASH: ${SECRET}
+    #CI_ENV: test
+    #CONFIG_DIR: ./config/
+    MONGO_URL: "${MONGO_SERVER}/${DB_NAME}"
+    DB: "${MONGO_SERVER_TEST}/${DB_NAME_TEST}"
+  before_script:
+    - apt-get update
+    - apt-get -y upgrade
+    - apt-get -y install git
+    - apt-get -y install python make
+  script:
+    - npm install -d
+    - npm update
+    - npm prune
+    - pwd
+    - npm install tslint
+    - npm run lint
+    - npm run test
+  only:
+    - develop
+  cache:
+    paths:
+    - node_modules/
+  #artifacts:
+  #  paths:
+  #    - coverage/lcov-report/
+
+deploy-develop-ovh:
+  stage: deploy-develop
+  image: node:10-jessie
+  variables:
+    SSH_PRIV_OVH_FILE: ".ssh/id_rsa"
+  before_script:
+    - echo "deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" >> /etc/apt/sources.list
+    - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 93C4A3FD7BB9C367
+    - apt-get -y update
+    - apt-get -y install gettext
+    - apt-get -y install ansible
+    - apt-get -y install openssh-client
+    - mkdir -p $HOME/.ssh
+    - chmod 700 $HOME/.ssh
+    - ssh-keyscan -t rsa 176.31.163.48 >>$HOME/.ssh/known_hosts
+    - echo $SSH_PRIV_OVH | base64 -d > $HOME/$SSH_PRIV_OVH_FILE
+    - chmod 600 $HOME/$SSH_PRIV_OVH_FILE
+  script:
+    - pwd
+    - cd ansible
+    - cat deploy.yaml | envsubst > deploy-with-replaced-vars.yaml
+    - ansible-playbook deploy-with-replaced-vars.yaml --inventory inventory.yaml --limit=host-ovh
+  environment: develop
+  only:
+    - develop
+#  when: manual

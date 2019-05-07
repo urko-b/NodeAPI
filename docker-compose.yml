@@ -8,9 +8,22 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - mongo
-  mongo:
-    container_name: mongo
+      - mongodb
+    environment:
+      - MONGO_URL=${MONGO_URL}
+      - MONGO_URL_TEST=${MONGO_URL_TEST}
+      - NODE_ENV=${NODE_ENV}
+      - PORT=3000
+      - WEBAPINAME="restful_api"
+      - VERSION=1.0
+      - MONGO_DB_PORT=27018
+      - MONGO_DB_NAME=NodeAPI
+      - DB="mongodb://mongodb:${MONGO_DB_PORT}/${MONGO_DB_NAME}"
+    volumes:
+      - ./:/usr/src/app
+      - ./node_modules:/usr/src/app/node_modules
+  mongodb:
+    container_name: mongodb
     image: mongo:latest    
     command: mongod --port 27018
     networks:
