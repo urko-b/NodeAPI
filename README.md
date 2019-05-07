@@ -41,14 +41,56 @@ npx patch-package
 ```sh
 NODE_ENV="development"
 PORT=3000
+RESTFUL_API_PUBLIC_PORT=3200
+MONGO_URL=mongodb://mongodb:27017/NodeAPI
+MONGO_URL_TEST=mongodb://mongodb:27017/NodeAPI_test
 WEBAPINAME="webapi"
 VERSION=1.0
-
-DB="mongodb://..."
+MONGO_URL="mongodb://..."
+MONGO_URL_TEST="mongodb://..."
 ```
 
 
 
+## Commands
+All commands are under a make file to have everything centralized. The available commands are:
+```shell
+    #install all npm dependences
+    make install
+     
+    #Build all docker files present on docker-compose.yml
+    make build
+    
+    #Run the API REST
+    make up
+    
+    #Install package
+    make install-<package>
+    
+    #install dev package
+    make install-dev-<package>
+    
+    #Run lint
+    make lint
+
+    #Run unit test
+    make unittest
+
+    #Compile
+    make tsc
+
+```
+
+## Installation
+To develop in local environment:
+```shell
+git clone git@gitlab.com:7sense.global/7sense_restful_api.git
+cd 7sense_restful_api
+git checkout develop
+make install
+make build
+make up
+```
 
 ---
 

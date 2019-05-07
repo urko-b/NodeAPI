@@ -26,7 +26,7 @@ shell: .env
 	@${run} restful_api /bin/sh
 
 install: build
-	@${npm} install -d
+	@${npm} install
 
 install-dev-%:
 	@${npm} install --save-dev $*
@@ -37,5 +37,8 @@ install-%:
 test: .env
 	@${npm} run test
 
+unittest: .env
+	@${npm} run unittest
+	
 %:
 	@${npm} run $*

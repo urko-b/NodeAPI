@@ -19,7 +19,7 @@ unittest:
     #CI_ENV: test
     #CONFIG_DIR: ./config/
     MONGO_URL: "${MONGO_SERVER}/${DB_NAME}"
-    DB: "${MONGO_SERVER_TEST}/${DB_NAME_TEST}"
+    MONGO_URL_TEST: "${MONGO_SERVER_TEST}/${DB_NAME_TEST}"
   before_script:
     - apt-get update
     - apt-get -y upgrade
@@ -32,7 +32,7 @@ unittest:
     - pwd
     - npm install tslint
     - npm run lint
-    - npm run test
+    - npm run unittest
   only:
     - develop
   cache:
