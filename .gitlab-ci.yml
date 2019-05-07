@@ -11,20 +11,25 @@ unittest:
   services:
     - mongo:latest
   variables:
-    MONGO_SERVER: mongodb://mongo:27017
-    MONGO_SERVER_TEST: mongodb://mongo:27017
-    DB_NAME: webapi_db_test
-    DB_NAME_TEST: webapi_db_test
-    #SECRET_HASH: ${SECRET}
-    #CI_ENV: test
-    #CONFIG_DIR: ./config/
-    MONGO_URL: "${MONGO_SERVER}/${DB_NAME}"
-    MONGO_URL_TEST: "${MONGO_SERVER_TEST}/${DB_NAME_TEST}"
+    PORT: 3000
+    RESTFUL_API_PUBLIC_PORT: 3200
+    MONGO_URL: mongodb://mongodb:27017/NodeAPI_test
+    MONGO_URL_TEST: mongodb://mongodb:27017/NodeAPI_test
+    NODE_ENV: development
+    WEBAPINAME: "webapi"
+    VERSION: 1.0
   before_script:
     - apt-get update
     - apt-get -y upgrade
     - apt-get -y install git
     - apt-get -y install python make
+    - mongoimport --host mongo --db NodeAPI_test --collection audit_log --type json --file mongo-seed/audit_log.json --jsonArray
+    - mongoimport --host mongo --db NodeAPI_test --collection book --type json --file mongo-seed/book.json --jsonArray
+    - mongoimport --host mongo --db NodeAPI_test --collection collaborators --type json --file mongo-seed/collaborators.json --jsonArray
+    - mongoimport --host mongo --db NodeAPI_test --collection collections_schemas --type json --file mongo-seed/collections_schemas.json --jsonArray
+    - mongoimport --host mongo --db NodeAPI_test --collection crag --type json --file mongo-seed/crag.json --jsonArray
+    - mongoimport --host mongo --db NodeAPI_test --collection system_tokens --type json --file mongo-seed/system_tokens.json --jsonArray
+    - mongoimport --host mongo --db NodeAPI_test --collection tree --type json --file mongo-seed/tree.json --jsonArray
   script:
     - npm install -d
     - npm update

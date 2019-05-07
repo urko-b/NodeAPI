@@ -1,0 +1,3 @@
+{ "_id" : { "$oid" : "5c51e4e73aab7224ac88422d" }, "title" : "El hombre y sus símbolos", "description" : "Libro de psicología para principiantes", "author" : { "name" : "Carl Gustav", "surname" : "Jung" } }
+{ "_id" : { "$oid" : "5c5216ec1feb6b24dca7841b" }, "title" : "Gárgoris y Hábidis", "description" : "Libro sobre historia mitológica de España", "author" : { "name" : "nuevoNombre", "surname" : "Sánchez Dragó" }, "__v" : 0 }
+{ "_id" : { "$oid" : "5c861457ec435215e003f82a" }, "title" : "Clean code", "description" : "Even bad code can function. But if code isn't clean, it can bring a development organization to its knees", "author" : { "name" : "Robert", "surname" : "C. Martin" }, "__v" : 0 }
