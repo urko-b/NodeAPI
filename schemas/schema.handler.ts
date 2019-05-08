@@ -1,12 +1,11 @@
-import * as mongoose from 'mongoose'
-import { SyncSchema } from './sync.schema'
+import { Model, model, Schema } from 'mongoose';
+import { CollectionSchema } from './collection-schema';
+import { SyncSchema } from './sync-schema';
 
 export class SchemaHandler {
-  public collections: any[]
-  protected schema: mongoose.Schema
-  protected model: mongoose.Model<any>
-  protected readonly CollectionsSchemas: string = 'collections_schemas'
-  protected readonly collectionName: string = 'collection_name'
+  public schemas: CollectionSchema[];
+  protected mongooseSchema: Schema;
+  protected mongooseModel: Model<any>;
 
   /**
    * @remarks
@@ -14,22 +13,41 @@ export class SchemaHandler {
    * and call private init function
    */
   constructor() {
-    this.collections = new Array<any>()
+    this.schemas = [];
+  }
+
+  /**
+   * @remarks
+   * Initializes mongoose model that represents
+   * collections_schemas collection
+   */
+  public init() {
+    this.mongooseSchema = new Schema({
+      collection_name: String,
+      collection_schema: String
+    });
+
+    this.mongooseModel = model(
+      process.env.COLLECTIONS_SCHEMAS,
+      this.mongooseSchema,
+      process.env.COLLECTIONS_SCHEMAS
+    );
   }
 
   /**
    * @remarks
    * Makes a query to collections_schemas collection and
    * fill collections array property with all the documents
-   * founded
-   *
+   * found
    */
-  public fillSchema = async () => {
+  public fillSchemas = async () => {
     try {
-      this.collections = await this.model.find({})
+      this.schemas = await this.mongooseModel
+        .find({})
+        .exec();
     } catch (error) {
-      console.error(error)
-      throw error
+      console.error(error);
+      throw error;
     }
   }
 
@@ -45,29 +63,14 @@ export class SchemaHandler {
    */
   public syncSchema = async () => {
     try {
-      const syncSchema: SyncSchema = await this.getSchemasToSync()
-      if (syncSchema.schemasToSync.length > 0) {
-        this.collections = this.collections.concat(syncSchema.schemasToSync)
-      }
+      const syncSchema: SyncSchema = await this.getSchemasToSync();
+      this.addSchemas(syncSchema.collectionsToSync);
+      this.removeSchemas(syncSchema.collectionsToUnsync);
 
-      if (syncSchema.schemasToUnsync.length > 0) {
-        this.removeCollections(syncSchema)
-      }
-
-      return syncSchema
+      return syncSchema;
     } catch (error) {
-      console.error(error)
-      throw error
-    }
-  }
-
-  public removeCollections = (syncSchema: SyncSchema) => {
-    for (const unsync of syncSchema.schemasToUnsync) {
-      for (const c of this.collections) {
-        if (unsync[this.collectionName] === c[this.collectionName]) {
-          this.collections.splice(this.collections.indexOf(c), 1)
-        }
-      }
+      console.error(error);
+      throw error;
     }
   }
 
@@ -75,50 +78,53 @@ export class SchemaHandler {
    *
    * @returns Object of {@link SyncSchema} with the collections to add/remove
    */
-  public getSchemasToSync = async () => {
-    return this.model
-      .find({})
-      .exec()
-      .then(schemas => {
-        const syncSchema: SyncSchema = new SyncSchema()
-        syncSchema.schemasToSync = schemas.filter(
-          this.comparer(this.collections)
-        )
-        syncSchema.schemasToUnsync = this.collections.filter(
-          this.comparer(schemas)
-        )
-        return syncSchema
-      })
-      .catch(error => {
-        throw error
-      })
+  public getSchemasToSync = async (): Promise<SyncSchema> => {
+    try {
+      const schemas = await this.mongooseModel
+        .find({})
+        .exec();
+
+      const syncSchema: SyncSchema = new SyncSchema();
+      syncSchema.collectionsToSync = schemas.filter(
+        this.comparer(this.schemas)
+      );
+
+      syncSchema.collectionsToUnsync = this.schemas.filter(
+        this.comparer(schemas)
+      );
+
+      return syncSchema;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
-  /**
-   * @remarks
-   * Initializes mongoose model that represents
-   * collections_schemas collection
-   */
-  public init() {
-    this.schema = new mongoose.Schema({
-      collection_name: String,
-      collection_schema: String
-    })
-
-    this.model = mongoose.model(
-      this.CollectionsSchemas,
-      this.schema,
-      this.CollectionsSchemas
-    )
+  public removeSchemas = (collectionsToUnsync: CollectionSchema[]) => {
+    if (collectionsToUnsync.length > 0) {
+      for (const unsync of collectionsToUnsync) {
+        for (const c of this.schemas) {
+          if (unsync[process.env.COLLECTION_NAME] === c[process.env.COLLECTION_NAME]) {
+            this.schemas.splice(this.schemas.indexOf(c), 1);
+          }
+        }
+      }
+    }
   }
 
-  private comparer = arrayToCompare => {
-    return current => {
+  private addSchemas(collectionsToSync: CollectionSchema[]) {
+    if (collectionsToSync.length > 0) {
+      this.schemas = this.schemas.concat(collectionsToSync);
+    }
+  }
+
+  private comparer = (arrayToCompare) => {
+    return (current) => {
       return (
         arrayToCompare.filter(other => {
-          return other[this.collectionName] === current[this.collectionName]
+          return other[process.env.COLLECTION_NAME] === current[process.env.COLLECTION_NAME];
         }).length === 0
-      )
-    }
+      );
+    };
   }
 }

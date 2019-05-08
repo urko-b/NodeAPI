@@ -1,88 +1,76 @@
-import { SchemaHandler } from '../schemas/schema.module'
-import { Route } from './route'
-import { SyncRoutes } from './sync.routes'
+import { CollectionSchema, SchemaHandler } from '../schemas/schema.module';
+import { Routes } from './routes';
+import { SyncRoutes } from './sync-routes';
 
-export class ModelsHandler {
-  public get routes(): Route[] {
-    return this._routes
-  }
-  protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
-  protected methods = ['get', 'post', 'put', 'patch', 'delete']
+export class ModelHandler {
 
-  protected schemaHandler: SchemaHandler
-
-  private _routes: Route[]
+  private routes: Routes;
+  protected schemaHandler: SchemaHandler;
 
   constructor() {
-    this.schemaHandler = new SchemaHandler()
-    this._routes = []
+    this.schemaHandler = new SchemaHandler();
+    this.routes = new Routes();
   }
 
   public async init() {
     try {
-      this.schemaHandler.init()
-      await this.schemaHandler.fillSchema()
-      this.fillModels()
+      this.schemaHandler.init();
+      await this.schemaHandler.fillSchemas();
+      this.fillModels();
     } catch (error) {
-      throw error
-    }
-  }
-
-  public async syncRoutes(): Promise<SyncRoutes> {
-    try {
-      const syncSchema = await this.schemaHandler.syncSchema()
-
-      const schemasToSync = syncSchema.schemasToSync
-      const schemasToUnsync = syncSchema.schemasToUnsync
-
-      const syncRoutes: SyncRoutes = new SyncRoutes()
-
-      if (schemasToSync.length > 0) {
-        const routes = new Array<Route>()
-
-        for (const collection of schemasToSync) {
-          const collectionName: string = collection.collection_name
-          const collectionSchema: string = collection.collection_schema
-          routes.push(
-            new Route(
-              collectionName,
-              this.methods,
-              `${this.apiRoute}/${collectionName}`,
-              collectionSchema,
-              { new: true }
-            )
-          )
-        }
-
-        this._routes = this._routes.concat(routes)
-        syncRoutes.routesToSync = routes
-      }
-
-      if (schemasToUnsync.length > 0) {
-        syncRoutes.routesToUnsync = schemasToUnsync.map(s => s.collection_name)
-      }
-
-      return syncRoutes
-    } catch (error) {
-      console.error(error)
-      throw error
+      console.error(error);
+      throw error;
     }
   }
 
   public fillModels(): void {
-    this._routes = new Array<Route>()
-    for (const collection of this.schemaHandler.collections) {
-      const collection_name: string = collection.collection_name
-      const collection_schema: string = collection.collection_schema
-      this._routes.push(
-        new Route(
-          collection_name,
-          this.methods,
-          `${this.apiRoute}/${collection_name}`,
-          collection_schema,
-          { new: true }
-        )
-      )
+    this.routes = new Routes();
+    for (const collection of this.schemaHandler.schemas) {
+      const collectionSchema: CollectionSchema
+        = new CollectionSchema(collection.collection_name, collection.collection_schema);
+
+      this.routes.addRoute(collectionSchema);
     }
+  }
+
+  public getRoutes(): Routes {
+    return this.routes;
+  }
+
+  public async syncRoutes(): Promise<SyncRoutes> {
+    try {
+      const syncSchema = await this.schemaHandler.syncSchema();
+
+      const schemasToSync = syncSchema.collectionsToSync;
+      const schemasToUnsync = syncSchema.collectionsToUnsync;
+
+      const syncRoutes: SyncRoutes = new SyncRoutes();
+
+      const routesToSync: Routes = this.getRoutesToSync(schemasToSync);
+      if (routesToSync.hasRoutes()) {
+        this.routes.pushRoutes(routesToSync);
+        syncRoutes.routesToSync = routesToSync;
+      }
+
+      if (schemasToUnsync.length > 0) {
+        syncRoutes.routesToUnsync = schemasToUnsync.map(s => s.collection_name);
+      }
+
+      return syncRoutes;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  private getRoutesToSync(schemasToSync: any[]): Routes {
+    const routes: Routes = new Routes();
+    for (const collection of schemasToSync) {
+      const collectionSchema: CollectionSchema
+        = new CollectionSchema(collection.collection_name, collection.collection_schema);
+
+      routes.addRoute(collectionSchema);
+    }
+    return routes;
   }
 }

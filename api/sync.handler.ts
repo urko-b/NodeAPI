@@ -1,11 +1,11 @@
 import { RoutesHandler } from './routes.handler'
 
 export class SyncHandler {
-  protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`
-  protected routesHandler: RoutesHandler
+  protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`;
+  protected routesHandler: RoutesHandler;
 
   constructor(routesHandler: RoutesHandler) {
-    this.routesHandler = routesHandler
+    this.routesHandler = routesHandler;
   }
 
   /**
@@ -18,13 +18,13 @@ export class SyncHandler {
       `${this.apiRoute}/SyncSchema`,
       async (req, res, next) => {
         try {
-          const schemasSynced = await this.routesHandler.syncRoutes()
-          return res.status(200).send(schemasSynced)
+          const schemasSynced = await this.routesHandler.sync();
+          return res.status(200).send(schemasSynced);
         } catch (error) {
-          console.error('error', error)
-          return res.status(400).send(error)
+          console.error('error', error);
+          return res.status(400).send(error);
         }
       }
-    )
+    );
   }
 }

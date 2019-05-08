@@ -3,6 +3,9 @@
   "rules": {
     "quotemark": [true, "single"],
     "no-implicit-dependencies": false,
-    "no-namespace": false
+    "no-namespace": false,
+    "semicolon": [true, "always"],
+    "member-ordering": false,
+    "variable-name": [true, "allow-snake-case"]
   }
 }

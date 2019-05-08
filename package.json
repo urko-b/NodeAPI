@@ -10,6 +10,7 @@
     "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start_local": "node -r dotenv/config ./index.js",
+    "test": "nodemon --exec mocha -timeout 30000  -r ts-node/register test/**/*.spec.ts",
     "dev": "nodemon --config nodemon.json --inspect=0.0.0.0:5858 -L index.js",
     "unittest": "mocha --exit  -r ts-node/register test/**/*.spec.ts"
   },
@@ -28,7 +29,7 @@
   },
   "author": "Pablo Guerrero González",
   "license": "EULA",
-  "description": "",
+  "description": "Generic entity Node API",
   "dependencies": {
     "@types/node": "^11.9.4",
     "dotenv": "^6.2.0",

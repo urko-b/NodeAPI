@@ -1,41 +1,46 @@
-import * as express from 'express'
-import * as mongoose from 'mongoose'
-import * as restful from 'node-restful'
-restful.mongoose = mongoose
+import { Application } from 'express';
+import * as mongoose from 'mongoose';
+import * as restful from 'node-restful';
+restful.mongoose = mongoose;
 
-import { Log, LogHandler } from '../log/log.module'
-import { ModelsHandler, Route, SyncRoutes } from '../models/model.module'
-import * as patchHandler from './patch.handler'
+import { Log, LogHandler } from '../log/log.module';
+import { ModelHandler, Route, SyncRoutes } from '../models/model.module';
+import { Routes } from '../models/routes';
+import { RouteBuilder } from './route.builder';
+import { SyncRoutesResponse } from './sync-routes-response';
 
 export class RoutesHandler {
-  public get app(): express.Application {
-    return this.expressApp
+
+  private expressApp: Application;
+  protected isDevelopment: boolean;
+
+  protected models: ModelHandler;
+  protected logHandler: LogHandler;
+
+  private collaboratorId: string;
+
+  constructor(app: Application, isDevelopment: boolean = false) {
+    this.expressApp = app;
+    this.models = new ModelHandler();
+    this.logHandler = new LogHandler(this.expressApp);
+    this.isDevelopment = isDevelopment;
   }
-  public get collaboratorId(): string {
-    return this._collaboratorId
+
+  public get app(): Application {
+    return this.expressApp;
   }
-  protected models: ModelsHandler
-  protected logHandler: LogHandler
-
-  protected isDevelopment: boolean
-  private expressApp: express.Application
-
-  private _collaboratorId: string
-
-  constructor(app: express.Application, isDevelopment: boolean = false) {
-    this.expressApp = app
-    this.models = new ModelsHandler()
-    this.logHandler = new LogHandler(this.expressApp)
-    this.isDevelopment = isDevelopment
+  public getCollaboratorId(): string {
+    return this.collaboratorId;
   }
 
   public async init() {
     try {
-      await this.logHandler.init()
-      await this.models.init()
-      this.registerRoutes(this.models.routes)
+      await this.logHandler.init();
+      await this.models.init();
+      this.registerRoutes(this.models.getRoutes());
     } catch (error) {
-      throw error
+      console.error(error);
+      throw error;
     }
   }
 
@@ -46,46 +51,31 @@ export class RoutesHandler {
    * Set mongoose model for this entity and mount each routing (GET, POST, PUT, DELETE, PATCH)
    */
   public registerRoute(routeModel: Route) {
-    let collectionName: string
-    let schema: any
-    let strict: object
-    let routeName: string
     try {
-      collectionName = routeModel.collectionName
-      schema = JSON.parse(routeModel.mongooseSchema)
-      strict = routeModel.strict
-      routeName = routeModel.route
+      const collectionName: string = routeModel.collectionName;
+      const routeName: string = routeModel.route;
 
-      const mongooseSchema = new mongoose.Schema(schema, strict)
+      const routeBuilder: RouteBuilder = new RouteBuilder(routeModel);
+      const route = routeBuilder.buildRoute();
 
-      const route = (this.expressApp.route[collectionName] = restful
-        .model(collectionName, mongooseSchema, collectionName)
-        .methods(routeModel.methods)
-        .updateOptions(routeModel.updateOptions))
+      route.before('post', this.setCollaboratorId);
+      route.before('put', this.setCollaboratorId);
+      route.before('delete', this.setCollaboratorId);
 
-      route.before('post', this.setCollaboratorId)
-      route.before('put', this.setCollaboratorId)
-      route.before('delete', this.setCollaboratorId)
-
-      route.register(this.expressApp, routeName)
+      route.register(this.expressApp, routeName);
 
       if (!this.isDevelopment) {
-        this.listenOnChanges(collectionName)
+        this.listenOnChanges(collectionName);
       }
 
-      if (routeModel.methods.includes('patch')) {
-        const patch = new patchHandler.PatchHandler(
-          this.expressApp,
-          routeName,
-          collectionName
-        )
-        patch.registerPatch()
-      }
+      routeBuilder.registerPatch(this.expressApp);
+
     } catch (error) {
-      console.log('collectionName', collectionName)
-      console.log(error)
+      console.log(error);
+      throw error;
     }
   }
+
 
   /**
    * @remarks
@@ -97,36 +87,21 @@ export class RoutesHandler {
    * Each string field will print wich collections has been synced/unsynced.
    * If there aren't any to sync/unsync it will output "All up to date"
    */
-  public async syncRoutes(): Promise<any> {
-    try {
-      const syncRoutes: SyncRoutes = await this.models.syncRoutes()
+  public async sync(): Promise<any> {
+    const syncRoutes: SyncRoutes = await this.models.syncRoutes();
 
-      const routesToUnsync = syncRoutes.routesToUnsync
-      const routesToSync = syncRoutes.routesToSync
+    const routesToSync = syncRoutes.routesToSync;
+    this.registerRoutes(routesToSync);
+    const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync);
+    const syncedRoutes = this.getSyncedRoutes(routesToSyncNames);
 
-      this.registerRoutes(routesToSync)
-      const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync)
-      const syncedRoutes = this.getSyncedRoutes(routesToSyncNames)
+    const routesToUnsync = syncRoutes.routesToUnsync;
+    const routesToUnsyncNames: string[] = this.getRoutesToUnsync(routesToUnsync);
+    this.removeRoutes(routesToUnsyncNames);
+    const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames);
 
-      const routesToUnsyncNames: string[] = this.getRoutesToUnsync(
-        routesToUnsync
-      )
-      this.removeRoutes(routesToUnsyncNames)
-      const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames)
-
-      const result: any = {}
-      if (syncedRoutes !== '') {
-        result.syncedRoutes = syncedRoutes
-      }
-
-      if (unsyncedRoutes !== '') {
-        result.unsyncedRoutes = unsyncedRoutes
-      }
-
-      return result
-    } catch (error) {
-      throw error
-    }
+    const syncRoutesResponse: SyncRoutesResponse = new SyncRoutesResponse(syncedRoutes, unsyncedRoutes);
+    return syncRoutesResponse;
   }
 
   /**
@@ -136,12 +111,13 @@ export class RoutesHandler {
    * Loop each route and call {@link RoutesHandler.registerRoute}
    * in order to register each route
    */
-  public registerRoutes(routes: Route[]) {
-    if (routes === undefined || routes == null || routes.length <= 0) {
-      return
+  public registerRoutes(routes: Routes) {
+    if (routes === undefined || routes == null || !routes.hasRoutes()) {
+      return;
     }
-    for (const model of routes) {
-      this.registerRoute(model)
+
+    for (const model of routes.getRoutes()) {
+      this.registerRoute(model);
     }
   }
 
@@ -154,11 +130,11 @@ export class RoutesHandler {
    */
   public setCollaboratorId = (req, res, next) => {
     try {
-      const collaboratorId: string = req.get('collaboratorId')
-      this._collaboratorId = collaboratorId
-      next()
+      const collaboratorId: string = req.get('collaboratorId');
+      this.collaboratorId = collaboratorId;
+      next();
     } catch (error) {
-      next()
+      next();
     }
   }
 
@@ -175,10 +151,10 @@ export class RoutesHandler {
       routesToSync === null ||
       routesToSync.length <= 0
     ) {
-      return 'All up to date'
+      return 'All up to date';
     }
 
-    return `${routesToSync.join()}`
+    return `${routesToSync.join()}`;
   }
 
   /**
@@ -194,10 +170,10 @@ export class RoutesHandler {
       routesToUnsync === null ||
       routesToUnsync.length <= 0
     ) {
-      return 'All up to date'
+      return 'All up to date';
     }
 
-    return `${routesToUnsync.join()}`
+    return `${routesToUnsync.join()}`;
   }
 
   /**
@@ -207,18 +183,18 @@ export class RoutesHandler {
    */
   public removeRoutes = (routesToUnsync: string[]) => {
     if (routesToUnsync == null || routesToUnsync.length <= 0) {
-      return
+      return;
     }
 
     for (const unsync of routesToUnsync) {
       this.expressApp._router.stack = this.expressApp._router.stack.filter(
         r => {
           if (r.route === undefined) {
-            return r
+            return r;
           }
-          return !r.route.path.includes(unsync)
+          return !r.route.path.includes(unsync);
         }
-      )
+      );
     }
   }
 
@@ -229,11 +205,11 @@ export class RoutesHandler {
    * Return a string array with the names of the collections to unsync
    */
   public getRoutesToUnsync(routesToUnsync: any[]): string[] {
-    let routesToUnsyncNames: string[]
+    let routesToUnsyncNames: string[];
     if (routesToUnsync !== undefined) {
-      routesToUnsyncNames = routesToUnsync
+      routesToUnsyncNames = routesToUnsync;
     }
-    return routesToUnsyncNames
+    return routesToUnsyncNames;
   }
 
   /**
@@ -242,12 +218,12 @@ export class RoutesHandler {
    * @remarks
    * Return a string array with the names of the collections to sync
    */
-  public getRoutesToSync(routesToSync: any[]): string[] {
-    let routesToSyncNames: string[]
+  public getRoutesToSync(routesToSync: Routes): string[] {
+    let routesToSyncNames: string[];
     if (routesToSync !== undefined) {
-      routesToSyncNames = routesToSync.map(r => r.collectionName)
+      routesToSyncNames = routesToSync.getRoutes().map(r => r.collectionName);
     }
-    return routesToSyncNames
+    return routesToSyncNames;
   }
 
   /**
@@ -266,21 +242,21 @@ export class RoutesHandler {
             data.operationType !== 'update' &&
             data.operationType !== 'delete'
           ) {
-            return
+            return;
           }
 
           const log: Log = new Log(
-            new mongoose.Types.ObjectId(this._collaboratorId),
+            new mongoose.Types.ObjectId(this.collaboratorId),
             data.operationType,
             collectionName,
             JSON.stringify(data),
             null,
             JSON.stringify(data.updateDescription)
-          )
-          await this.logHandler.insertOne(log)
+          );
+          await this.logHandler.insertOne(log);
         } catch (error) {
-          throw error
+          throw error;
         }
-      })
+      });
   }
 }

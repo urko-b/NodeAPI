@@ -1,35 +1,36 @@
-import * as mongoose from 'mongoose'
+import { Model, model, Schema } from 'mongoose';
+
 export class AuthController {
-  protected schema: mongoose.Schema
-  protected model: mongoose.Model<any>
-  private readonly SystemTokens: string = 'system_tokens'
+  protected schema: Schema;
+  protected model: Model<any>;
 
   public init() {
-    this.schema = new mongoose.Schema({
+    this.schema = new Schema({
       name: String,
       system_token: String
-    })
-    this.model = mongoose.model(
-      this.SystemTokens,
+    });
+
+    this.model = model(
+      process.env.SYSTEM_TOKENS,
       this.schema,
-      this.SystemTokens
-    )
+      process.env.SYSTEM_TOKENS
+    );
   }
 
   public async isTokenValid(token: string) {
-    return this.model
-      .findOne({ system_token: token })
-      .exec()
-      .then(doc => {
-        if (doc === undefined || doc === null) {
-          return false
-        }
+    try {
+      const tokenFound = await this.model
+        .findOne({ system_token: token })
+        .exec();
 
-        return true
-      })
-      .catch(err => {
-        console.warn('log error', err)
-        throw err
-      })
+      return this.tokenExists(tokenFound);
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
+  }
+
+  private tokenExists(tokenFound: object) {
+    return tokenFound !== undefined && tokenFound !== null;
   }
 }

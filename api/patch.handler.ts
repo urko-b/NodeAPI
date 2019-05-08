@@ -1,11 +1,12 @@
-import * as express from 'express'
-import * as jsonpatch from 'fast-json-patch'
-import * as mongoose from 'mongoose'
+import { Application } from 'express';
+import { applyPatch, JsonPatchError, validate } from 'fast-json-patch';
+import { PatchResult } from 'fast-json-patch/lib/core';
+import { connection, Types } from 'mongoose';
 
 export class PatchHandler {
-  protected app: express.Application
-  protected routeName: string
-  protected resource: string
+  protected app: Application;
+  protected routeName: string;
+  protected resource: string;
 
   /**
    *
@@ -18,68 +19,72 @@ export class PatchHandler {
    * @param routeName
    * @param resource
    */
-  constructor(app: express.Application, routeName: string, resource: string) {
-    this.app = app
-    this.routeName = routeName
-    this.resource = resource
+  constructor(app: Application, routeName: string, resource: string) {
+    this.app = app;
+    this.routeName = routeName;
+    this.resource = resource;
   }
 
   public registerPatch(): void {
     this.app.patch(`${this.routeName}/:id`, async (req, res) => {
       try {
-        const jsonPatches: any = req.body
-        const documentId: any = req.params.id
+        const jsonPatches: any = req.body;
+        const documentId: any = req.params.id;
 
-        const documentToPatch = await this.getDocument(documentId)
+        const documentToPatch = await this.getDocument(documentId);
+
         if (!this.documentExists(documentToPatch)) {
           return res
             .status(404)
-            .send(res.__('Document requested could not be found'))
+            .send(res.__('Document requested could not be found'));
         }
 
-        const patchErrors = jsonpatch.validate(jsonPatches, documentToPatch)
-        if (!this.isValidPatch(patchErrors)) {
-          delete patchErrors.tree
-          return res.status(400).send(patchErrors)
-        }
+        this.validatePatch(res, jsonPatches, documentToPatch);
 
-        const validateOperation: boolean = true
-        const patchedDocument = jsonpatch.applyPatch(
-          documentToPatch,
-          jsonPatches,
-          validateOperation
-        )
-        const updatedDocument = await this.updateDocument(
-          documentId,
-          patchedDocument
-        )
+        const patchedDocument = this.getPatchedDocument(documentToPatch, jsonPatches);
 
-        return res.status(200).send(updatedDocument)
+        const updatedDocument = await this.updateDocument(documentId, patchedDocument);
+
+        return res.status(200).send(updatedDocument);
       } catch (err) {
-        return res.status(400).send(res.__(err.message))
+        return res.status(400).send(res.__(err.message));
       }
-    })
+    });
   }
 
   private documentExists(documentToPatch: any) {
-    return documentToPatch != null
+    return documentToPatch != null;
   }
 
-  private isValidPatch(patchErrors: jsonpatch.JsonPatchError) {
-    return patchErrors === undefined
+  private validatePatch(res: any, jsonPatches: any, documentToPatch: any) {
+    const patchErrors = validate(jsonPatches, documentToPatch);
+    if (!this.isValidPatch(patchErrors)) {
+      delete patchErrors.tree;
+      return res.status(400).send(patchErrors);
+    }
   }
 
-  private async updateDocument(documentId: any, patchedDocument) {
-    return mongoose.connection.models[this.resource].updateOne(
-      { _id: new mongoose.Types.ObjectId(documentId) },
+  private isValidPatch(patchErrors: JsonPatchError) {
+    return patchErrors === undefined;
+  }
+
+  private getPatchedDocument(documentToPatch: any, jsonPatches: any): PatchResult<any> {
+    const validateOperation: boolean = true;
+    const patchedDocument = applyPatch(documentToPatch, jsonPatches, validateOperation);
+    return patchedDocument;
+  }
+
+  private async updateDocument(documentId: any, patchedDocument: any) {
+    return connection.models[this.resource].updateOne(
+      { _id: new Types.ObjectId(documentId) },
       { $set: patchedDocument.newDocument },
       { new: true }
-    )
+    );
   }
 
   private async getDocument(documentId: any) {
-    return mongoose.connection.models[this.resource].findOne({
-      _id: new mongoose.Types.ObjectId(documentId)
-    })
+    return connection.models[this.resource].findOne({
+      _id: new Types.ObjectId(documentId)
+    });
   }
 }
