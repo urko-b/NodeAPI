@@ -3,12 +3,12 @@ import chaiHttp = require('chai-http');
 import * as dotenv from 'dotenv';
 import 'mocha';
 import * as mongoose from 'mongoose';
-import { RoutesHandler } from '../api/routes.handler';
-import { SyncHandler } from '../api/sync.handler';
-import * as server from '../app';
+import { RoutesHandler } from '../../api/routes.handler';
+import { SyncHandler } from '../../api/sync.handler';
+import * as server from '../../app';
 
 import bodyParser = require('body-parser');
-import { TestHelper } from './test.helper';
+import { TestHelper } from '../test.helper';
 
 describe('Testing sync.handler', () => {
   chai.use(chaiHttp);

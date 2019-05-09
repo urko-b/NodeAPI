@@ -52,6 +52,12 @@ export class PatchHandler {
     });
   }
 
+  private async getDocument(documentId: any) {
+    return connection.models[this.resource].findOne({
+      _id: new Types.ObjectId(documentId)
+    });
+  }
+
   private documentExists(documentToPatch: any) {
     return documentToPatch != null;
   }
@@ -80,11 +86,5 @@ export class PatchHandler {
       { $set: patchedDocument.newDocument },
       { new: true }
     );
-  }
-
-  private async getDocument(documentId: any) {
-    return connection.models[this.resource].findOne({
-      _id: new Types.ObjectId(documentId)
-    });
   }
 }

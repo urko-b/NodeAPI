@@ -4,11 +4,11 @@ import * as dotenv from 'dotenv';
 import 'mocha';
 import * as mongoose from 'mongoose';
 import * as supertest from 'supertest';
-import { PatchHandler } from '../api/patch.handler';
-import * as server from '../app';
+import { PatchHandler } from '../../api/patch.handler';
+import * as server from '../../app';
 
 import bodyParser = require('body-parser');
-import { TestHelper } from './test.module';
+import { TestHelper } from '../test.module';
 
 const ashTreeId: string = '5c861457ec435215e003f82a';
 describe('Testing patch.handler', () => {

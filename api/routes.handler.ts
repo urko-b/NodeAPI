@@ -88,20 +88,25 @@ export class RoutesHandler {
    * If there aren't any to sync/unsync it will output "All up to date"
    */
   public async sync(): Promise<any> {
-    const syncRoutes: SyncRoutes = await this.models.syncRoutes();
+    try {
+      const syncRoutes: SyncRoutes = await this.models.syncRoutes();
 
-    const routesToSync = syncRoutes.routesToSync;
-    this.registerRoutes(routesToSync);
-    const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync);
-    const syncedRoutes = this.getSyncedRoutes(routesToSyncNames);
+      const routesToSync = syncRoutes.routesToSync;
+      this.registerRoutes(routesToSync);
+      const routesToSyncNames: string[] = this.getRoutesToSync(routesToSync);
+      const syncedRoutes = this.getSyncedRoutes(routesToSyncNames);
 
-    const routesToUnsync = syncRoutes.routesToUnsync;
-    const routesToUnsyncNames: string[] = this.getRoutesToUnsync(routesToUnsync);
-    this.removeRoutes(routesToUnsyncNames);
-    const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames);
+      const routesToUnsync = syncRoutes.routesToUnsync;
+      const routesToUnsyncNames: string[] = this.getRoutesToUnsync(routesToUnsync);
+      this.removeRoutes(routesToUnsyncNames);
+      const unsyncedRoutes = this.getUnsyncedRoutes(routesToUnsyncNames);
 
-    const syncRoutesResponse: SyncRoutesResponse = new SyncRoutesResponse(syncedRoutes, unsyncedRoutes);
-    return syncRoutesResponse;
+      const syncRoutesResponse: SyncRoutesResponse = new SyncRoutesResponse(syncedRoutes, unsyncedRoutes);
+      return syncRoutesResponse;
+    } catch (error) {
+      console.error(error);
+      throw error;
+    }
   }
 
   /**
@@ -255,6 +260,7 @@ export class RoutesHandler {
           );
           await this.logHandler.insertOne(log);
         } catch (error) {
+          console.error(error);
           throw error;
         }
       });

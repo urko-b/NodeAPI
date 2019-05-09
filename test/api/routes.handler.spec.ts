@@ -6,12 +6,12 @@ import * as mongoose from 'mongoose';
 import * as supertest from 'supertest';
 
 import bodyParser = require('body-parser');
-import { RoutesHandler } from '../api/routes.handler';
-import * as server from '../app';
-import { Route } from '../models/model.module';
-import { Routes } from '../models/routes';
-import { CollectionSchema } from '../schemas/schema.module';
-import { TestHelper } from './test.module';
+import { RoutesHandler } from '../../api/routes.handler';
+import * as server from '../../app';
+import { Route } from '../../models/model.module';
+import { Routes } from '../../models/routes';
+import { CollectionSchema } from '../../schemas/schema.module';
+import { TestHelper } from '../test.module';
 
 let ashTreeId: string;
 const isDevelopment: boolean = true;

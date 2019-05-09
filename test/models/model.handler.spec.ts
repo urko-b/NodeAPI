@@ -2,13 +2,13 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';
 import * as mongoose from 'mongoose';
-import { ModelHandler, SyncRoutes } from '../models/model.module';
+import { ModelHandler, SyncRoutes } from '../../models/model.module';
 
 import * as dotenv from 'dotenv';
-import * as server from '../app';
+import * as server from '../../app';
 
 import bodyParser = require('body-parser');
-import { TestHelper } from './test.helper';
+import { TestHelper } from '../test.helper';
 
 describe('Testing models.handler', () => {
   chai.use(chaiHttp);

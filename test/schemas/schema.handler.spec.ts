@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import 'mocha';
 import * as mongoose from 'mongoose';
-import { CollectionSchema, SchemaHandler, SyncSchema } from '../schemas/schema.module';
+import { CollectionSchema, SchemaHandler, SyncSchema } from '../../schemas/schema.module';
 
 describe('Testing Schema', () => {
   it('init() should create mongoose model "collections_schemas"', done => {

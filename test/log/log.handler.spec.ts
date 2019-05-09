@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 import 'mocha';
 import { connection, Types } from 'mongoose';
-import { App } from '../app';
-import { Log, LogHandler } from '../log/log.module';
+import { App } from '../../app';
+import { Log, LogHandler } from '../../log/log.module';
 
 describe('Test Log', () => {
   const apiServer = new App(process.env.PORT);
