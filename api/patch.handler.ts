@@ -2,6 +2,7 @@ import { Application } from 'express';
 import { applyPatch, JsonPatchError, validate } from 'fast-json-patch';
 import { PatchResult } from 'fast-json-patch/lib/core';
 import { connection, Types } from 'mongoose';
+import * as i18n from 'i18n';
 
 export class PatchHandler {
   protected app: Application;

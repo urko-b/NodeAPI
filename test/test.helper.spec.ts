@@ -4,15 +4,14 @@ import { TestHelper } from './test.module';
 
 dotenv.config();
 before(done => {
-  // Called hooks which runs before something.
-  mongoose.connect(process.env.TEST, { useFindAndModify: false }, connectionError => {
+  mongoose.connect(process.env.MONGO_URL, { useFindAndModify: false }, connectionError => {
     if (connectionError) {
       done();
       return console.warn(
         `Error while connecting to database: ${connectionError}`
       );
     }
-    console.log('Connected!');
+    console.log(`Connected! ${process.env.MONGO_URL}`);
     done();
   });
 });

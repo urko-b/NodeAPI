@@ -23,9 +23,45 @@ describe('Testing models.handler', () => {
 
   TestHelper.removeMongooseModels();
 
+  const schemaDoc: CollectionSchema = {
+    collection_name: 'test_collection',
+    collection_schema: '{"name": "String"}'
+  };
+
+  const testSchema: CollectionSchema = {
+    collection_name: 'no_test_collection',
+    collection_schema: '{"name": "String"}'
+  };
+
+  beforeEach(async () => {
+    TestHelper.registerMongooseCollectionSchemas();
+    await mongoose.connection.models.collections_schemas.insertMany([schemaDoc]);
+    TestHelper.removeMongooseModels();
+  });
+
+  afterEach(async () => {
+    if (!mongoose.connection.models.collections_schemas) {
+      TestHelper.registerMongooseCollectionSchemas();
+    }
+    await mongoose.connection.models.collections_schemas.deleteMany({
+      collection_name: { $eq: 'test_collection' }
+    });
+
+    await mongoose.connection.models.collections_schemas.findOneAndDelete({
+      collection_name: { $eq: 'no_test_collection' }
+    });
+
+    TestHelper.removeMongooseModels();
+  });
+
+
+
+
   it('init(): Should fill modelsHandler routes field', async () => {
     const modelsHandler = new ModelHandler();
     await modelsHandler.init();
+
+    await mongoose.connection.models.collections_schemas.insertMany([schemaDoc]);
 
     chai.assert(
       chai
@@ -38,17 +74,11 @@ describe('Testing models.handler', () => {
   it('syncRoutes(): Testing routes to "sync"', async () => {
     const modelsHandler = new ModelHandler();
     modelsHandler.init();
-    let syncRoutes: SyncRoutes;
 
-    const schemaDoc: any = {
-      collection_name: 'test_collection',
-      collection_schema: '{"name": "String"}'
-    };
     await modelsHandler.syncRoutes();
+    await mongoose.connection.models.collections_schemas.insertMany([testSchema]);
 
-    await mongoose.connection.models.collections_schemas.insertMany([schemaDoc]);
-
-    syncRoutes = await modelsHandler.syncRoutes();
+    const syncRoutes = await modelsHandler.syncRoutes();
 
     const routesToSync = syncRoutes.routesToSync;
     chai.assert(
@@ -64,15 +94,18 @@ describe('Testing models.handler', () => {
 
   it('syncRoutes(): Testing routes to "unsync"', async () => {
     const modelsHandler = new ModelHandler();
+
+    TestHelper.registerMongooseCollectionSchemas();
+    await mongoose.connection.models.collections_schemas.insertMany([testSchema]);
+    TestHelper.removeMongooseModelCollectionsSchemas();
+
     await modelsHandler.init();
     await mongoose.connection.models.collections_schemas.findOneAndDelete({
-      collection_name: { $eq: 'test_collection' }
+      collection_name: { $eq: 'no_test_collection' }
     });
 
     const syncRoutes: SyncRoutes = await modelsHandler.syncRoutes();
-
     const routesToUnsync = syncRoutes.routesToUnsync;
-
     chai.assert(
       chai
         .expect(routesToUnsync)
@@ -82,6 +115,10 @@ describe('Testing models.handler', () => {
   });
 
   it('fillModels(): Testing fillModels()', async () => {
+    TestHelper.registerMongooseCollectionSchemas();
+    await mongoose.connection.models.collections_schemas.insertMany([schemaDoc]);
+    TestHelper.removeMongooseModelCollectionsSchemas();
+
     const modelsHandler = new ModelHandler();
     await modelsHandler.init();
     modelsHandler.fillModels();
@@ -107,3 +144,6 @@ describe('Testing models.handler', () => {
     done();
   });
 });
+
+
+

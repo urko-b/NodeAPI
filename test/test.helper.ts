@@ -22,6 +22,19 @@ export class TestHelper {
     delete mongoose.connection.models.collections_schemas;
   }
 
+  public static registerMongooseCollectionSchemas = () => {
+    const mongooseSchema = new mongoose.Schema({
+      collection_name: String,
+      collection_schema: String
+    });
+
+    mongoose.connection.model(
+      process.env.COLLECTIONS_SCHEMAS,
+      mongooseSchema,
+      process.env.COLLECTIONS_SCHEMAS
+    );
+  };
+
   /**
    * @remarks
    * Remove audit_log from mongoose models

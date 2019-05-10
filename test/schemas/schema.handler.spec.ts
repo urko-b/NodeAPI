@@ -2,6 +2,7 @@ import * as chai from 'chai';
 import 'mocha';
 import * as mongoose from 'mongoose';
 import { CollectionSchema, SchemaHandler, SyncSchema } from '../../schemas/schema.module';
+import { TestHelper } from '../test.helper';
 
 describe('Testing Schema', () => {
   it('init() should create mongoose model "collections_schemas"', done => {
@@ -16,9 +17,22 @@ describe('Testing Schema', () => {
   });
 
   it('fillSchema() should fill the collections array', async () => {
+    TestHelper.registerMongooseCollectionSchemas();
+    const schemaDoc: CollectionSchema = {
+      collection_name: 'test_collection',
+      collection_schema: '{"name": "String"}'
+    };
+    await mongoose.connection.models.collections_schemas.insertMany([schemaDoc]);
+    TestHelper.removeMongooseModels();
+
     const handler = new SchemaHandler();
     handler.init();
     await handler.fillSchemas();
+
+    await mongoose.connection.models.collections_schemas.findOneAndDelete({
+      collection_name: { $eq: 'test_collection' }
+    });
+
     chai.assert(
       chai.expect(handler.schemas).to.be.an('array').and.not.be.empty
     );
