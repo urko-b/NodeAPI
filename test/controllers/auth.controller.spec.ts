@@ -14,6 +14,7 @@ describe('Testing auth.controller', () => {
     );
     done();
   });
+
   it('isTokenValid(): ', async () => {
     TestHelper.removeMongooseModels();
     const tokenId = new mongoose.Types.ObjectId();
@@ -31,5 +32,20 @@ describe('Testing auth.controller', () => {
     });
 
     return chai.assert(chai.expect(isTokenValid).is.true);
+  });
+
+  it('tokenExists(): Should return true, token received is not null or undefined', async () => {
+    const tokenId = new mongoose.Types.ObjectId();
+    const authController = new AuthController();
+
+    const tokenExists: boolean = authController.tokenExists(tokenId);
+    return chai.assert(chai.expect(tokenExists).is.true);
+  });
+
+  it('tokenExists(): Should return false, Token received is null', async () => {
+    const authController = new AuthController();
+
+    const tokenExists: boolean = authController.tokenExists(null);
+    return chai.assert(chai.expect(tokenExists).is.false);
   });
 });

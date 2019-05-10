@@ -112,13 +112,13 @@ export class SchemaHandler {
     }
   }
 
-  private addSchemas(collectionsToSync: CollectionSchema[]) {
+  public addSchemas(collectionsToSync: CollectionSchema[]) {
     if (collectionsToSync.length > 0) {
       this.schemas = this.schemas.concat(collectionsToSync);
     }
   }
 
-  private comparer = (arrayToCompare) => {
+  public comparer = (arrayToCompare) => {
     return (current) => {
       return (
         arrayToCompare.filter(other => {

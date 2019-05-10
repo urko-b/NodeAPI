@@ -1,4 +1,4 @@
-import { RoutesHandler } from './routes.handler'
+import { RoutesHandler } from './routes.handler';
 
 export class SyncHandler {
   protected apiRoute = `/${process.env.WEBAPINAME}/${process.env.VERSION}`;

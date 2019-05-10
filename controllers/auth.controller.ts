@@ -30,7 +30,7 @@ export class AuthController {
     }
   }
 
-  private tokenExists(tokenFound: object) {
+  public tokenExists(tokenFound: object) {
     return tokenFound !== undefined && tokenFound !== null;
   }
 }

@@ -105,4 +105,34 @@ describe('Testing Schema', () => {
         .to.be.an('array').and.be.empty
     );
   });
+
+
+  it('addSchemas(): should add new CollectionSchema to SchemaHandler schemas array', (done) => {
+    const handler = new SchemaHandler();
+    handler.init();
+
+    const collectionsToSync: CollectionSchema[] = [];
+    collectionsToSync.push(new CollectionSchema('testCollection', '{"name": "String"}'));
+
+    handler.addSchemas(collectionsToSync);
+
+    chai.assert(chai.expect(handler.schemas).to.have.length(1));
+    done();
+  });
+
+  it('comparer(): should compare two arrays and return differences (in this case 1 element)', (done) => {
+    const handler = new SchemaHandler();
+
+    const schemas: CollectionSchema[] = [];
+    schemas.push(new CollectionSchema('testCollection', '{"name": "String"}'));
+    schemas.push(new CollectionSchema('testCollection2', '{"name": "String"}'));
+
+    const schemasComparer: CollectionSchema[] = [];
+    schemasComparer.push(new CollectionSchema('testCollection', '{"name": "String"}'));
+
+    const schemasComparerResult = schemas.filter(handler.comparer(schemasComparer));
+    chai.assert(chai.expect(schemasComparerResult).to.have.length(1));
+    done();
+  });
 });
+
