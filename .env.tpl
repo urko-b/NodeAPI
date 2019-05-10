@@ -5,3 +5,7 @@ MONGO_URL_TEST=mongodb://mongodb:27017/NodeAPI_test
 NODE_ENV=development
 WEBAPINAME="webapi"
 VERSION=1.0
+COLLECTIONS_SCHEMAS="collections_schemas"
+COLLECTION_NAME="collection_name"
+AUDIT_LOG="audit_log"
+SYSTEM_TOKENS="system_tokens"
