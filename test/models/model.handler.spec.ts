@@ -2,12 +2,13 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 import 'mocha';
 import * as mongoose from 'mongoose';
-import { ModelHandler, SyncRoutes } from '../../models/model.module';
+import { ModelHandler, Routes, SyncRoutes } from '../../models/model.module';
 
 import * as dotenv from 'dotenv';
 import * as server from '../../app';
 
 import bodyParser = require('body-parser');
+import { CollectionSchema } from '../../schemas/schema.module';
 import { TestHelper } from '../test.helper';
 
 describe('Testing models.handler', () => {
@@ -87,5 +88,22 @@ describe('Testing models.handler', () => {
     chai.assert(
       chai.expect(modelsHandler.getRoutes().getRoutes()).to.be.an('array').not.be.empty
     );
+  });
+
+  it('getRoutesToSync(): ', (done) => {
+    const modelsHandler = new ModelHandler();
+    const collectionName: string = 'SyncTestCollection';
+    const collectionSchema: string = '{"name": "String"}';
+
+    const routes: Routes = new Routes();
+    routes.addRoute(new CollectionSchema(collectionName, collectionSchema));
+
+    const collectionsToSync = [
+      { 'collection_name': collectionName, 'collection_schema': collectionSchema }
+    ];
+    const routesToSync = modelsHandler.getRoutesToSync(collectionsToSync);
+
+    chai.assert(chai.expect(routesToSync.getRoutes()).to.deep.equals(routes.getRoutes()));
+    done();
   });
 });

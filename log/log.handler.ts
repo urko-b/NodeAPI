@@ -66,7 +66,7 @@ export class LogHandler {
   }
 
 
-  private exists(log: any): boolean {
+  public exists(log: any): boolean {
     return log !== undefined && log !== null;
   }
 }

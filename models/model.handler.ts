@@ -63,7 +63,7 @@ export class ModelHandler {
     }
   }
 
-  private getRoutesToSync(schemasToSync: any[]): Routes {
+  public getRoutesToSync(schemasToSync: any[]): Routes {
     const routes: Routes = new Routes();
     for (const collection of schemasToSync) {
       const collectionSchema: CollectionSchema

@@ -23,7 +23,7 @@ export class Routes {
   }
 
   public pushRoutes(routesToSync: Routes) {
-    this.routes.concat(routesToSync.routes);
+    this.routes = this.routes.concat(routesToSync.routes);
   }
 
   public pushRoute(route: Route) {

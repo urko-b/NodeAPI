@@ -40,4 +40,14 @@ describe('Test Log', () => {
 
     return chai.assert(chai.expect(isRemove).to.be.true);
   });
+
+  it('exists(): should verify object passed as paremeter is not null or undefined', (done) => {
+    logHandler.init();
+    const exists = logHandler.exists({
+      notEmptyObject: 'is not empty'
+    });
+
+    chai.assert(chai.expect(exists).to.be.true);
+    done();
+  });
 });
