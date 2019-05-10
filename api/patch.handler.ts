@@ -28,8 +28,8 @@ export class PatchHandler {
   public registerPatch(): void {
     this.app.patch(`${this.routeName}/:id`, async (req, res) => {
       try {
-        const jsonPatches: any = req.body;
-        const documentId: any = req.params.id;
+        const jsonPatchOperations: any = req.body;
+        const documentId: Types.ObjectId = Types.ObjectId(req.params.id);
 
         const documentToPatch = await this.getDocument(documentId);
 
@@ -39,9 +39,9 @@ export class PatchHandler {
             .send(res.__('Document requested could not be found'));
         }
 
-        this.validatePatch(res, jsonPatches, documentToPatch);
+        this.validatePatch(res, jsonPatchOperations, documentToPatch);
 
-        const patchedDocument = this.getPatchedDocument(documentToPatch, jsonPatches);
+        const patchedDocument = this.getPatchedDocument(documentToPatch, jsonPatchOperations);
 
         const updatedDocument = await this.updateDocument(documentId, patchedDocument);
 
@@ -52,35 +52,34 @@ export class PatchHandler {
     });
   }
 
-  private async getDocument(documentId: any) {
+  public async getDocument(documentId: any) {
     return connection.models[this.resource].findOne({
       _id: new Types.ObjectId(documentId)
     });
   }
 
-  private documentExists(documentToPatch: any) {
+  public documentExists(documentToPatch: any) {
     return documentToPatch != null;
   }
 
   private validatePatch(res: any, jsonPatches: any, documentToPatch: any) {
     const patchErrors = validate(jsonPatches, documentToPatch);
     if (!this.isValidPatch(patchErrors)) {
-      delete patchErrors.tree;
       return res.status(400).send(patchErrors);
     }
   }
 
-  private isValidPatch(patchErrors: JsonPatchError) {
+  public isValidPatch(patchErrors: JsonPatchError) {
     return patchErrors === undefined;
   }
 
-  private getPatchedDocument(documentToPatch: any, jsonPatches: any): PatchResult<any> {
+  public getPatchedDocument(documentToPatch: any, jsonPatchOperations: any): PatchResult<any> {
     const validateOperation: boolean = true;
-    const patchedDocument = applyPatch(documentToPatch, jsonPatches, validateOperation);
+    const patchedDocument = applyPatch(documentToPatch, jsonPatchOperations, validateOperation);
     return patchedDocument;
   }
 
-  private async updateDocument(documentId: any, patchedDocument: any) {
+  public async updateDocument(documentId: Types.ObjectId, patchedDocument: any) {
     return connection.models[this.resource].updateOne(
       { _id: new Types.ObjectId(documentId) },
       { $set: patchedDocument.newDocument },
