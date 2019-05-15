@@ -42,6 +42,7 @@ unittest:
     - npm update
     - npm prune
     - pwd
+    - npm run patch
     - npm install tslint
     - npm run lint
     - npm run unittest
