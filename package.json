@@ -12,7 +12,7 @@
     "start_local": "node -r dotenv/config ./index.js",
     "test": "nodemon --exec mocha -timeout 30000  -r ts-node/register test/**/*.spec.ts",
     "dev": "nodemon --config nodemon.json --inspect=0.0.0.0:5858 -L index.js",
-    "unittest": "mocha --exit  -r ts-node/register test/**/*.spec.ts"
+    "unittest": "mocha --exit -timeout 30000 -r ts-node/register test/**/*.spec.ts"
   },
   "nodemonConfig": {
     "ignore": [

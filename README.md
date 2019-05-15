@@ -48,6 +48,11 @@ WEBAPINAME="webapi"
 VERSION=1.0
 MONGO_URL="mongodb://..."
 MONGO_URL_TEST="mongodb://..."
+
+COLLECTIONS_SCHEMAS="collections_schemas"
+COLLECTION_NAME="collection_name"
+AUDIT_LOG="audit_log"
+SYSTEM_TOKENS="system_tokens"
 ```
 
 
