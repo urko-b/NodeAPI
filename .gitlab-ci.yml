@@ -18,6 +18,10 @@ unittest:
     NODE_ENV: development
     WEBAPINAME: "webapi"
     VERSION: 1
+    COLLECTIONS_SCHEMAS: collections_schemas
+    COLLECTION_NAME: collection_name
+    AUDIT_LOG: audit_log
+    SYSTEM_TOKENS: system_tokens
   before_script:
     - apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
     - echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list

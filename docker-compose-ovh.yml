@@ -12,6 +12,10 @@ services:
       - PORT=${PORT}
       - WEBAPINAME=${WEBAPINAME}
       - VERSION=${VERSION}
+      - COLLECTIONS_SCHEMAS=${COLLECTIONS_SCHEMAS}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+      - AUDIT_LOG=${AUDIT_LOG}
+      - SYSTEM_TOKENS=${SYSTEM_TOKENS}
     volumes:
       - ./:/usr/src/app
       - ./node_modules:/usr/src/app/node_modules

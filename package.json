@@ -6,6 +6,7 @@
     "start": "node -r ts-node/register ./index.ts",
     "start:watch": "nodemon -r dotenv/config ./index.js",
     "tsc": "node_modules/.bin/tsc",
+    "patch": "npx patch-package",
     "prod": "node_modules/.bin/tsc && nodemon --config nodemon.json ./dist/index.js",
     "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",

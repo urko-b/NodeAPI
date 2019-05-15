@@ -1,14 +1,14 @@
 version: "3"
 services:
-  app:
+  restful_api:
     build: .
     restart: always
     networks:
       - nodeapp-network
     ports:
-      - "3000:3000"
+      - ${RESTFUL_API_PUBLIC_PORT}:${PORT}
     depends_on:
-      - mongodb
+      - mongodbs
     environment:
       - MONGO_URL=${MONGO_URL}
       - MONGO_URL_TEST=${MONGO_URL_TEST}
@@ -16,12 +16,16 @@ services:
       - PORT=${PORT}
       - WEBAPINAME=${WEBAPINAME}
       - VERSION=${VERSION}   
+      - COLLECTIONS_SCHEMAS=${COLLECTIONS_SCHEMAS}
+      - COLLECTION_NAME=${COLLECTION_NAME}
+      - AUDIT_LOG=${AUDIT_LOG}
+      - SYSTEM_TOKENS=${SYSTEM_TOKENS}
     volumes:
       - ./:/usr/src/app
       - ./node_modules:/usr/src/app/node_modules
-  mongodb:
-    container_name: mongodb
-    image: mongo:latest    
+  mongodbs:
+    container_name: mongodbs
+    image: mongo:3.6.12  
     command: mongod --port 27018
     networks:
       - nodeapp-network

@@ -59,6 +59,10 @@
           WEBAPINAME="restful_api"
           VERSION=1
           DCOMPOSE_FILE="ovh"
+          COLLECTIONS_SCHEMAS=collections_schemas
+          COLLECTION_NAME=collection_name
+          AUDIT_LOG=audit_log
+          SYSTEM_TOKENS=system_tokens
 
     - name: "Ejecutar docker-compose"
       shell: |
