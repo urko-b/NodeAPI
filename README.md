@@ -39,20 +39,18 @@ npx patch-package
 ## .env File
 **You must create or have a .env file with this configuration:**
 ```sh
-NODE_ENV="development"
+NODE_ENV=development
 PORT=3000
 RESTFUL_API_PUBLIC_PORT=3200
-MONGO_URL=mongodb://mongodb:27017/NodeAPI
-MONGO_URL_TEST=mongodb://mongodb:27017/NodeAPI_test
-WEBAPINAME="webapi"
+MONGO_URL=mongodb://mongodbs:27017/NodeAPI
+MONGO_URL_TEST=mongodb://mongodbs:27017/NodeAPI_test
+WEBAPINAME=webapi
 VERSION=1.0
-MONGO_URL="mongodb://..."
-MONGO_URL_TEST="mongodb://..."
 
-COLLECTIONS_SCHEMAS="collections_schemas"
-COLLECTION_NAME="collection_name"
-AUDIT_LOG="audit_log"
-SYSTEM_TOKENS="system_tokens"
+COLLECTIONS_SCHEMAS=collections_schemas
+COLLECTION_NAME=collection_name
+AUDIT_LOG=audit_log
+SYSTEM_TOKENS=system_tokens"
 ```
 
 
