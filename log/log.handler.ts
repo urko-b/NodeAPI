@@ -1,5 +1,5 @@
 import { Application } from 'express';
-import { Model, model, Schema, Types } from 'mongoose';
+import { Model, model, Schema, Types, Mongoose } from 'mongoose';
 import { Log } from './log';
 
 export class LogHandler {
@@ -13,7 +13,7 @@ export class LogHandler {
 
   public init() {
     this.schema = new Schema({
-      collaborator_id: Types.ObjectId,
+      collaborator_id: Schema.Types.ObjectId,
       collection_name: String,
       date: {
         default: Date.now(),

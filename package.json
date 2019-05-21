@@ -11,9 +11,9 @@
     "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start_local": "node -r dotenv/config ./index.js",
-    "test": "nodemon --exec mocha -timeout 30000  -r ts-node/register test/**/*.spec.ts",
+    "test": "nodemon --exec mocha -timeout 30000 -r ts-node/register --recursive \"test/*.spec.ts\" \"test/**/*.spec.ts\"",
     "dev": "nodemon --config nodemon.json --inspect=0.0.0.0:5858 -L index.js",
-    "unittest": "mocha --exit -timeout 30000 -r ts-node/register test/**/*.spec.ts"
+    "unittest": "mocha --exit -timeout 30000 -r ts-node/register 'test/*.spec.js'"
   },
   "nodemonConfig": {
     "ignore": [
@@ -66,7 +66,6 @@
     "nodemon": "^1.18.10",
     "npm": "^6.9.0",
     "supertest": "^4.0.2",
-    "ts-node": "^8.0.2",
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-config-standard": "^8.0.1"

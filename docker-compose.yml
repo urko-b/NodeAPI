@@ -6,7 +6,7 @@ services:
     networks:
       - nodeapp-network
     ports:
-      - ${RESTFUL_API_PUBLIC_PORT}:${PORT}
+      - ${PORT}:${PORT}
     depends_on:
       - mongodbs
     environment:
@@ -21,12 +21,14 @@ services:
       - AUDIT_LOG=${AUDIT_LOG}
       - SYSTEM_TOKENS=${SYSTEM_TOKENS}
     volumes:
-      - ./:/usr/src/app
-      - ./node_modules:/usr/src/app/node_modules
+      - .:/usr/src/app:z
+      - /usr/src/app/node_modules
   mongodbs:
     container_name: mongodbs
     image: mongo:3.6.12  
-    command: mongod --port 27018
+    command: mongod --port 27017
+    ports:
+      - 27017
     networks:
       - nodeapp-network
 networks:
