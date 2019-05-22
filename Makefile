@@ -3,9 +3,10 @@ include ${ENV}
 export $(shell sed 's/=.*//' ${ENV})
 
 dc := docker-compose
-#ifneq ($(DCOMPOSE_FILE),"")
-#    dc := docker-compose -f docker-compose-$(DCOMPOSE_FILE).yml
-#endif
+
+ifneq ($(DCOMPOSE_FILE),)
+    dc := docker-compose -f $(DCOMPOSE_FILE).yml
+endif
 run := ${dc} run
 m := ${run} run migration --
 npm := ${run} restful_api /usr/local/bin/npm
