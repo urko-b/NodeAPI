@@ -4,12 +4,12 @@ services:
     build: .
     env_file: ${ENV:-.env}
     ports:
-      - ${RESTFUL_API_PUBLIC_PORT}:3000
+      - ${RESTFUL_API_PUBLIC_PORT}:${PORT}
     environment:
       - MONGO_URL=${MONGO_URL}
       - MONGO_URL_TEST=${MONGO_URL_TEST}
       - NODE_ENV=${NODE_ENV}
-      - PORT=3000
+      - PORT=${PORT}
       - WEBAPINAME=${WEBAPINAME}
       - VERSION=${VERSION} 
       - COLLECTIONS_SCHEMAS=${COLLECTIONS_SCHEMAS}
