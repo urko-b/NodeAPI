@@ -3,6 +3,7 @@ import { Schema } from 'mongoose';
 import * as restful from 'node-restful';
 import { Route } from '../models/route';
 import { PatchHandler } from './patch.handler';
+import { MongooseSchemaMapper } from '../schemas/type-mapper/mongoose-schema-mapper';
 
 export class RouteBuilder {
   private route: Route;
@@ -14,11 +15,17 @@ export class RouteBuilder {
   constructor(route: Route) {
     try {
       this.route = route;
-      this.mongooseSchema = new Schema(JSON.parse(route.mongooseSchema), route.strict);
+      this.mongooseSchema = this.getMongooseSchema(route);
+      console.group('this.mongooseSchema', this.mongooseSchema)
     } catch (error) {
       console.error(error);
       throw error;
     }
+  }
+
+  private getMongooseSchema(route: Route) {
+    const mappedSchema = MongooseSchemaMapper.map(JSON.parse(route.mongooseSchema));
+    return new Schema(mappedSchema, route.strict);
   }
 
 

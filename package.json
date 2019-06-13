@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node -r ts-node/register ./index.ts",
+    "start-watch-test": "nodemon -r dotenv/config ./index.ts",
     "start:watch": "nodemon -r dotenv/config ./index.js",
     "tsc": "node_modules/.bin/tsc",
     "patch": "npx patch-package",

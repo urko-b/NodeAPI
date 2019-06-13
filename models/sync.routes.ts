@@ -1,4 +1,4 @@
 export class SyncRoutes {
-  public routesToSync: any[]
-  public routesToUnsync: any[]
+  public routesToSync: any[];
+  public routesToUnsync: any[];
 }
