@@ -16,7 +16,6 @@ export class RouteBuilder {
     try {
       this.route = route;
       this.mongooseSchema = this.getMongooseSchema(route);
-      console.group('this.mongooseSchema', this.mongooseSchema)
     } catch (error) {
       console.error(error);
       throw error;
