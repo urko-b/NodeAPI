@@ -5,7 +5,8 @@ import * as methodOverride from 'method-override';
 import * as morgan from 'morgan';
 import { RoutesHandler } from './api/routes.handler';
 import { SyncHandler } from './api/sync.handler';
-import { AuthController } from './controllers/auth.controller';
+import { AuthController } from './api/controllers/auth.controller';
+import { PermissionsMidleware } from './api/middlewares/permissions-middleware';
 
 export class App {
   public app: express.Application;
@@ -50,6 +51,8 @@ export class App {
 
     this.app.use(i18n.init);
     this.app.use(this.i18nSetLocaleMiddleware);
+
+    this.app.use(PermissionsMidleware.canIDo);
   }
 
   public useBodyParser() {

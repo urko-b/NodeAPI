@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import 'mocha';
 import * as mongoose from 'mongoose';
-import { AuthController } from '../../controllers/auth.controller';
+import { AuthController } from '../../api/controllers/auth.controller';
 import { TestHelper } from '../test.module';
 
 describe('Testing auth.controller', () => {
