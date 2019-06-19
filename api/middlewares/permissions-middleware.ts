@@ -1,5 +1,4 @@
 
-import { Application } from 'express';
 import { connection } from 'mongoose';
 import { Permissions } from '../../permissions/permissions';
 
@@ -35,6 +34,7 @@ export class PermissionsMidleware {
         return next('Unauthorized');
       }
 
+      req.findBy = findBy;
       next();
     } catch (e) {
       console.error('error', e);
