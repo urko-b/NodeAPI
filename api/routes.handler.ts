@@ -1,6 +1,6 @@
 import { Application } from 'express';
 import * as mongoose from 'mongoose';
-import * as restful from 'node-restful';
+import * as restful from 'node-restful-improved';
 restful.mongoose = mongoose;
 
 import { Log, LogHandler } from '../log/log.module';

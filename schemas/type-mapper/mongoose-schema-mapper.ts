@@ -18,15 +18,15 @@ export class MongooseSchemaMapper {
   }
 
   private static getMongoosePopulate(populateField: any | any[]): any | any[] {
-    if (MongooseSchemaMapper.isObject(populateField)) {
-      return MongooseSchemaMapper.getMongoosePopulateType(populateField);
-    } else {
+    if (Array.isArray(populateField)) {
       let mongoosePopulateFields = [];
       populateField.forEach(field => {
         const obj = MongooseSchemaMapper.getMongoosePopulateType(field);
         mongoosePopulateFields.push(obj);
       });
       return mongoosePopulateFields;
+    } else {
+      return MongooseSchemaMapper.getMongoosePopulateType(populateField);
     }
   }
 

@@ -20,18 +20,21 @@ export class App {
     this.app = express();
   }
 
-  public init() {
-    this.routesHandler = new RoutesHandler(this.app);
-    this.syncHandler = new SyncHandler(this.routesHandler);
-    this.authController = new AuthController();
+  public async init() {
+    try {
+      this.routesHandler = new RoutesHandler(this.app);
+      this.syncHandler = new SyncHandler(this.routesHandler);
+      this.authController = new AuthController();
 
-    this.authController.init();
-    this.initi18n();
-    this.useMiddlewares();
-    this.mountRoutes().catch(error => {
-      console.error(error);
-    });
-    this.syncHandler.setSyncSchemaRoute();
+      this.authController.init();
+      this.initi18n();
+      this.useMiddlewares();
+      await this.mountRoutes();
+
+      this.syncHandler.setSyncSchemaRoute();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   public run() {
@@ -51,8 +54,8 @@ export class App {
 
     this.app.use(i18n.init);
     this.app.use(this.i18nSetLocaleMiddleware);
-
     this.app.use(PermissionsMidleware.canIDo);
+
   }
 
   public useBodyParser() {

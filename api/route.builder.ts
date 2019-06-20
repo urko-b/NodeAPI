@@ -1,6 +1,6 @@
 import { Application } from 'express';
 import { Schema } from 'mongoose';
-import * as restful from 'node-restful';
+import * as restful from 'node-restful-improved';
 import { Route } from '../models/route';
 import { PatchHandler } from './patch.handler';
 import { MongooseSchemaMapper } from '../schemas/type-mapper/mongoose-schema-mapper';

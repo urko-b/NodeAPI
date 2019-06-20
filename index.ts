@@ -4,7 +4,7 @@ import * as server from './app';
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URL, { useFindAndModify: false }, connectionError => {
+mongoose.connect(process.env.MONGO_URL, { useFindAndModify: false }, async (connectionError) => {
   if (connectionError) {
     return console.error(
       `Error while connecting to database: ${connectionError}`
@@ -12,7 +12,7 @@ mongoose.connect(process.env.MONGO_URL, { useFindAndModify: false }, connectionE
   }
 
   const app = new server.App(process.env.PORT);
-  app.init();
+  await app.init();
 
   app.run();
 });
