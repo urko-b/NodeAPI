@@ -7,6 +7,7 @@ import { RoutesHandler } from './api/routes.handler';
 import { SyncHandler } from './api/sync.handler';
 import { AuthController } from './api/controllers/auth.controller';
 import { PermissionsMidleware } from './api/middlewares/permissions-middleware';
+import { ErrorHandler } from './api/middlewares/error-handler-middleware';
 
 export class App {
   public app: express.Application;
@@ -56,6 +57,7 @@ export class App {
     this.app.use(this.i18nSetLocaleMiddleware);
     this.app.use(PermissionsMidleware.canIDo);
 
+    this.app.use(ErrorHandler.handleError);
   }
 
   public useBodyParser() {

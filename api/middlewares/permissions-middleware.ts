@@ -1,6 +1,6 @@
 
-import { connection } from 'mongoose';
 import * as JSON from 'circular-json';
+import { connection } from 'mongoose';
 import { Permissions } from '../../permissions/permissions';
 
 export class PermissionsMidleware {
@@ -10,12 +10,8 @@ export class PermissionsMidleware {
       const collaboratorId = req.header('collaboratorId');
       const operation = Permissions.getOperationByMethodName(req.method);
       let collectionName = '';
-      if (req.route !== undefined) {
-        collectionName = req.route.path.split('/')[3];
-      } else {
-        collectionName = req.url.split('/')[req.url.split('/').length - 1]
-      }
 
+      collectionName = req.route !== undefined ? req.route.path.split('/')[3] : req.url.split('/')[req.url.split('/').length - 1];
       const permisions = await Permissions.getPermissions(collaboratorId, collectionName, operation);
 
       if (permisions.length === 0) {
@@ -41,8 +37,6 @@ export class PermissionsMidleware {
         return next('Unauthorized');
       }
 
-      // req.quer = req.quer.where()
-      console.log('req.quer', JSON.stringify(req.quer));
       req.findBy = findBy;
       next();
     } catch (e) {
