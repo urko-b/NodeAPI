@@ -12,6 +12,9 @@ export class PermissionsMidleware {
       let collectionName = '';
 
       collectionName = req.route !== undefined ? req.route.path.split('/')[3] : req.url.split('/')[req.url.split('/').length - 1];
+      if (collectionName === 'SyncSchema') {
+        next();
+      }
       const permisions = await Permissions.getPermissions(collaboratorId, collectionName, operation);
 
       if (permisions.length === 0) {
@@ -32,7 +35,7 @@ export class PermissionsMidleware {
       }
 
       const documents = await connection.models[collectionName].find(findBy);
-      if (documents.length === 0) {
+      if (documents.length === 0 && operation === 'find') {
         res.status(401);
         return next('Unauthorized');
       }
