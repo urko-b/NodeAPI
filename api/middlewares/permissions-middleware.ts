@@ -11,31 +11,25 @@ export class PermissionsMidleware {
       const operation = Permissions.getOperationByMethodName(req.method);
       let collectionName = '';
 
-      collectionName = req.route !== undefined ? req.route.path.split('/')[3] : req.url.split('/')[req.url.split('/').length - 1];
+      collectionName = PermissionsMidleware.getCollectionNameFromRoute(req);
       if (collectionName === 'SyncSchema') {
         next();
       }
       const permisions = await Permissions.getPermissions(collaboratorId, collectionName, operation);
 
-      if (permisions.length === 0) {
+      console.log('permisions', permisions)
+      if (!PermissionsMidleware.hasPermissions(permisions)) {
         res.status(401);
         return next('Unauthorized');
       }
-
-      let filters = [];
-      permisions.forEach((permission: any) => {
-        if (permission !== '') {
-          filters.push(JSON.parse(permission));
-        }
-      });
+      let filters = PermissionsMidleware.getFiltersFromPermissions(permisions);
 
       let findBy = {};
       if (filters.length > 0) {
         findBy = { '$or': filters };
       }
-
       const documents = await connection.models[collectionName].find(findBy);
-      if (documents.length === 0 && operation === 'find') {
+      if (PermissionsMidleware.cantDoRequestedOperation(documents, operation)) {
         res.status(401);
         return next('Unauthorized');
       }
@@ -48,5 +42,27 @@ export class PermissionsMidleware {
     }
   }
 
+  private static getFiltersFromPermissions(permisions: any[]) {
+    let filters = [];
+    permisions.forEach((permission: any) => {
+      if (permission !== '') {
+        filters.push(JSON.parse(permission));
+      }
+    });
+    return filters;
+  }
 
+  private static cantDoRequestedOperation(documents: any[], operation: string): boolean {
+    return (documents.length === 0 && operation === 'find');
+  }
+
+  private static hasPermissions(permisions: any[]): boolean {
+    return permisions.length !== 0;
+  }
+
+  private static getCollectionNameFromRoute(req: any): string {
+    return req.route !== undefined ?
+      req.route.path.split('/')[3] :
+      req.url.split('/')[req.url.split('/').length - 1];
+  }
 }

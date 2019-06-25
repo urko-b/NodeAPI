@@ -16,9 +16,6 @@ export class Permissions {
   public static async getPermissions(collaboratorId: ObjectId, collectionName: string, operation: string) {
     try {
       const collaborators = connection.models.collaborators;
-      console.log('collaboratorId', collaboratorId)
-      console.log('collectionName', collectionName)
-      console.log('operation', operation);
       const collaboratorPopulated = await collaborators.findOne({ '_id': collaboratorId })
         .populate({ path: 'roles', populate: { path: 'permissions', match: { 'collection_name': collectionName, 'operation': operation } } });
 
@@ -38,7 +35,7 @@ export class Permissions {
     }
   }
 
-  public static getOperationByMethodName(method: string) {
+  public static getOperationByMethodName(method: string): string {
     return OperationsMapper[method];
   }
 

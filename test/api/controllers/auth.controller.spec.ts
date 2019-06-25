@@ -1,8 +1,8 @@
 import * as chai from 'chai';
 import 'mocha';
 import * as mongoose from 'mongoose';
-import { AuthController } from '../../api/controllers/auth.controller';
-import { TestHelper } from '../test.module';
+import { AuthController } from '../../../api/controllers/auth.controller';
+import { TestHelper } from '../../test.module';
 
 describe('Testing auth.controller', () => {
   it('init(): should add system_tokens to mongoose models', done => {
