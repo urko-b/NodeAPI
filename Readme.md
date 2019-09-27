@@ -1,4 +1,4 @@
-RESTful API for 7sense backend
+RESTful API backend
 
 1. This module enables an API to maintain objects in the main database (mongoDB)
 1. It must be able to be dockerized
@@ -37,7 +37,9 @@ npx patch-package
 ---
 
 ## .env File
+
 **You must create or have a .env file with this configuration:**
+
 ```sh
 NODE_ENV=development
 PORT=3000
@@ -53,26 +55,26 @@ AUDIT_LOG=audit_log
 SYSTEM_TOKENS=system_tokens"
 ```
 
-
-
 ## Commands
+
 All commands are under a make file to have everything centralized. The available commands are:
+
 ```shell
     #install all npm dependences
     make install
-     
+
     #Build all docker files present on docker-compose.yml
     make build
-    
+
     #Run the API REST
     make up
-    
+
     #Install package
     make install-<package>
-    
+
     #install dev package
     make install-dev-<package>
-    
+
     #Run lint
     make lint
 
@@ -85,10 +87,12 @@ All commands are under a make file to have everything centralized. The available
 ```
 
 ## Installation
+
 To develop in local environment:
+
 ```shell
-git clone git@gitlab.com:7sense.global/7sense_restful_api.git
-cd 7sense_restful_api
+git https://github.com/elefantelimpio/NodeAPI.git
+cd NodeAPI
 git checkout develop
 make install
 make build
@@ -128,10 +132,11 @@ Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open i
 1. **collection_name (string)** Name of a collection from our database
 2. **collection_schema (string)** An object that represents the schema of the collection. It will be a [Mongoose schema] not mongodb schema style
 
-[Mongoose schema]: https://mongoosejs.com/docs/guide.html
+[mongoose schema]: https://mongoosejs.com/docs/guide.html
 
 **Remember to use double quotes, it's strictly necessary**
-*Example:* 
+_Example:_
+
 ```sh
 {
     "_id": ObjectId("5d0220ae1c9d440000446076"),
@@ -139,9 +144,11 @@ Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open i
     "collection_schema": "{ \"_id\": \"ObjectId\", \"name\": \"String\", \"roles\": [{ \"type\": \"ObjectId\", \"ref\": \"roles\" }]}"
 }
 ```
-This document represent **collaborators** entity. If you look at *collection_schema* field you will see that *roles* is a relationship field. According to **mongoose** documentation https://mongoosejs.com/docs/populate.html you can specify a relationship between entities using *population*
 
-The API use a custom mapper which maps the field types you specify in *collection_schema* field to mongoose schema types:
+This document represent **collaborators** entity. If you look at _collection_schema_ field you will see that _roles_ is a relationship field. According to **mongoose** documentation https://mongoosejs.com/docs/populate.html you can specify a relationship between entities using _population_
+
+The API use a custom mapper which maps the field types you specify in _collection_schema_ field to mongoose schema types:
+
 ```sh
 'String': Schema.Types.String,
 'Date': Schema.Types.Date,
@@ -152,17 +159,18 @@ The API use a custom mapper which maps the field types you specify in *collectio
 'Mixed': Schema.Types.Mixed,
 'Array': Schema.Types.Array,
 'Decimal128': Schema.Types.Decimal128
-````
+```
 
 **You must also have a collection called "system_tokens" in your MongoDB Database** The api use this collection to authorize each request. This collection must contains 2 fields:
 
 1. **name (string)** A name that describes this token
 2. **system_token (string)** Any kind of authorization token you want to use.
 
-*Example:* 
+_Example:_
+
 ```sh
-{   
-    "name": "development", 
+{
+    "name": "development",
     "collection_schema": "MLwnbMfVskkFB$HrC<S6Wkf<_'^z)gl0a5=^cr!@;NApu:_.qPIM`V'H!tGK.?["
 }
 ```
@@ -170,12 +178,17 @@ The API use a custom mapper which maps the field types you specify in *collectio
 ---
 
 ## **Version 1.1**
+
 ## Set Up Permssions
 
 ---
+
 ## Database Requirements
+
 **You must create two collectionn:"roles" and "permissions"**
-1. **roles** This collection represents entity *"roles"*. This entity contains a descriptive name and a list of permissions, this permissions must exist in *"permissions"* collection
+
+1. **roles** This collection represents entity _"roles"_. This entity contains a descriptive name and a list of permissions, this permissions must exist in _"permissions"_ collection
+
 ```sh
 {
     "_id":"5d01f64d20e109206cb1112c",
@@ -187,13 +200,15 @@ The API use a custom mapper which maps the field types you specify in *collectio
         ObjectId("5d10724479acd110e0979189")]
 }
 ```
-2. **permissions** This collection represents *"permissions"* entity. This must contains these fields:
-    2.1. **name** Descriptive name that represents what the permission does
-    2.2. **collection_name** The collection which this permission will be applied
-    2.3. **operation** The operation (find, updpdate, insert or delete)
-    2.4. **filter** Mongodb filter, this filter will be applied to each operation to verify if the user can do the requested action
 
-*Update permission restricted by topic field*
+2. **permissions** This collection represents _"permissions"_ entity. This must contains these fields:
+   2.1. **name** Descriptive name that represents what the permission does
+   2.2. **collection_name** The collection which this permission will be applied
+   2.3. **operation** The operation (find, updpdate, insert or delete)
+   2.4. **filter** Mongodb filter, this filter will be applied to each operation to verify if the user can do the requested action
+
+_Update permission restricted by topic field_
+
 ```sh
 {
     "_id": ObjectId("5d01f391ea7ac0206cacf8db"),
@@ -203,7 +218,9 @@ The API use a custom mapper which maps the field types you specify in *collectio
     "filter": "{\"topic\": {\"$eq\": \"programming\"}}"
 }
 ```
-*Find permission without restriction*
+
+_Find permission without restriction_
+
 ```sh
 {
     "_id": ObjectId("5d08fc3b1c9d440000d55859"),
