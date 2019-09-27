@@ -4,7 +4,7 @@ import * as server from './app';
 
 dotenv.config();
 
-mongoose.connect(process.env.MONGO_URL, { useFindAndModify: false }, async (connectionError) => {
+mongoose.connect(process.env.MONGO_URL, { useFindAndModify: false, useNewUrlParser: true }, async (connectionError) => {
   if (connectionError) {
     return console.error(
       `Error while connecting to database: ${connectionError}`

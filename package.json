@@ -3,18 +3,39 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node -r ts-node/register ./index.ts",
+    "start": "node -r ts-node/register ./index.js",
     "start-watch-test": "nodemon -r dotenv/config ./index.ts",
     "start:watch": "nodemon -r dotenv/config ./index.js",
     "tsc": "node_modules/.bin/tsc",
-    "patch": "npx patch-package",
     "prod": "node_modules/.bin/tsc && nodemon --config nodemon.json ./dist/index.js",
     "build": "tsc",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "start_local": "node -r dotenv/config ./index.js",
-    "test": "nodemon --exec mocha -timeout 30000 -r ts-node/register --recursive \"test/*.spec.ts\" \"test/**/*.spec.ts\"",
+    "test": "mocha --exit -timeout 30000 -r ts-node/register --recursive \"test/*.spec.ts\" \"test/**/*.spec.ts\"",
+    "test-coverage": "nyc mocha --exit -r ts-node/register --recursive \"test/*.spec.ts\" \"test/**/*.spec.ts\"",
     "dev": "nodemon --config nodemon.json --inspect=0.0.0.0:5858 -L index.js",
     "unittest": "mocha --exit -timeout 30000 -r ts-node/register --recursive 'test/*.spec.ts' 'test/**/*.spec.ts'"
+  },
+  "nyc": {
+    "extension": [
+      ".ts",
+      ".tsx"
+    ],
+    "exclude": [
+      "**/*.d.ts",
+      "./ansible",
+      "./apidoc",
+      "./locales",
+      "./mongo-seed",
+      "./node_modules",
+      "./patches",
+      "./test",
+      "./test"
+    ],
+    "reporter": [
+      "html"
+    ],
+    "all": true
   },
   "nodemonConfig": {
     "ignore": [
@@ -42,7 +63,7 @@
     "mongoose": "^5.4.7",
     "morgan": "^1.9.1",
     "node-restful-improved": "^0.2.6",
-    "patch-package": "6.0.4",
+    "node-restful": "git+https://git@github.com/elefantelimpio/node-restful.git",
     "request": "^2.88.0",
     "ts-node": "^8.0.2",
     "typescript": "^3.3.3"
@@ -67,6 +88,7 @@
     "mocha": "^6.0.2",
     "nodemon": "^1.18.10",
     "npm": "^6.9.0",
+    "nyc": "^14.1.1",
     "supertest": "^4.0.2",
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.18.0",

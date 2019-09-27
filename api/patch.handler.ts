@@ -1,8 +1,7 @@
 import { Application } from 'express';
 import { applyPatch, JsonPatchError, validate } from 'fast-json-patch';
 import { PatchResult } from 'fast-json-patch/lib/core';
-import { connection, Types } from 'mongoose';
-import * as i18n from 'i18n';
+import { connection, Types, Mongoose } from 'mongoose';
 
 export class PatchHandler {
   protected app: Application;
@@ -29,6 +28,11 @@ export class PatchHandler {
   public registerPatch(): void {
     this.app.patch(`${this.routeName}/:id`, async (req, res) => {
       try {
+        if (!this.isValidDocumentId(req.params.id)) {
+          return res
+            .status(404)
+            .send(res.__('id provided is not valid'));
+        }
         const jsonPatchOperations: any = req.body;
         const documentId: Types.ObjectId = Types.ObjectId(req.params.id);
 
@@ -40,6 +44,7 @@ export class PatchHandler {
             .send(res.__('Document requested could not be found'));
         }
 
+
         this.validatePatch(res, jsonPatchOperations, documentToPatch);
 
         const patchedDocument = this.getPatchedDocument(documentToPatch, jsonPatchOperations);
@@ -47,10 +52,15 @@ export class PatchHandler {
         const updatedDocument = await this.updateDocument(documentId, patchedDocument);
 
         return res.status(200).send(updatedDocument);
-      } catch (err) {
-        return res.status(400).send(res.__(err.message));
+      } catch (e) {
+        console.error(e);
+        return res.status(400).send(res.__(e.message));
       }
     });
+  }
+
+  public isValidDocumentId(documentId: any) {
+    return Types.ObjectId.isValid(documentId);
   }
 
   public async getDocument(documentId: any) {
@@ -60,13 +70,13 @@ export class PatchHandler {
   }
 
   public documentExists(documentToPatch: any) {
-    return documentToPatch != null;
+    return documentToPatch !== null;
   }
 
   private validatePatch(res: any, jsonPatches: any, documentToPatch: any) {
     const patchErrors = validate(jsonPatches, documentToPatch);
     if (!this.isValidPatch(patchErrors)) {
-      return res.status(400).send(patchErrors);
+      throw patchErrors;
     }
   }
 

@@ -7,6 +7,7 @@
     "semicolon": [true, "always"],
     "member-ordering": false,
     "variable-name": [true, "allow-snake-case"],
-    "object-literal-sort-keys": false
+    "object-literal-sort-keys": false,
+    "ordered-imports": false
   }
 }

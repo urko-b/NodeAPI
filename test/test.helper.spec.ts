@@ -4,7 +4,7 @@ import { TestHelper } from './test.module';
 
 dotenv.config();
 before(done => {
-  mongoose.connect(process.env.MONGO_URL_TEST, { useFindAndModify: false }, connectionError => {
+  mongoose.connect(process.env.MONGO_URL_TEST, { useFindAndModify: false, useNewUrlParser: true }, connectionError => {
     if (connectionError) {
       done();
       return console.warn(

@@ -3,6 +3,7 @@ import * as express from 'express';
 import * as i18n from 'i18n';
 import * as methodOverride from 'method-override';
 import * as morgan from 'morgan';
+import { Server } from 'http';
 import { RoutesHandler } from './api/routes.handler';
 import { SyncHandler } from './api/sync.handler';
 import { AuthController } from './api/controllers/auth.controller';
@@ -38,8 +39,8 @@ export class App {
     }
   }
 
-  public run() {
-    this.app.listen(this.port, () => {
+  public run(): Server {
+    return this.app.listen(this.port, () => {
       console.info(`API REST running in http://localhost:${this.port}`);
     });
   }
@@ -90,9 +91,9 @@ export class App {
       }
 
       next();
-    } catch (error) {
-      console.error(error);
-      next();
+    } catch (e) {
+      console.error(e);
+      next(e);
     }
   }
 
@@ -109,8 +110,8 @@ export class App {
   private async mountRoutes() {
     try {
       await this.routesHandler.init();
-    } catch (error) {
-      console.error('Unexpected error occurred in mountRoutes()', error);
+    } catch (e) {
+      console.error('Unexpected error occurred in mountRoutes()', e);
     }
   }
 }

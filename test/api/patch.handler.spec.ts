@@ -1,6 +1,7 @@
 import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 import * as dotenv from 'dotenv';
+import * as i18n from 'i18n';
 import 'mocha';
 import { connection, model, Schema, SchemaDefinition, Types } from 'mongoose';
 import * as supertest from 'supertest';
@@ -8,153 +9,228 @@ import { PatchHandler } from '../../api/patch.handler';
 import { App } from '../../app';
 
 import bodyParser = require('body-parser');
-import { TestHelper } from '../test.module';
 import { JsonPatchError } from 'fast-json-patch';
+import { TestHelper } from '../test.module';
+import { Server } from 'http';
+
+chai.use(chaiHttp);
+dotenv.config();
 
 describe('Testing patch.handler', () => {
 
-  describe('PatchHandler', () => {
-    const cleanCodeBook = {
-      author: {
-        name: 'Robert',
-        surname: 'C. Martin'
-      },
-      title: 'Clean code',
-      description:
-        'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
-    };
+  let webApi: App;
+  const bookCollection = 'book';
+  let patchHandler: PatchHandler;
 
-    chai.use(chaiHttp);
-    dotenv.config();
+  const cleanCodeBook = {
+    author: {
+      name: 'Robert',
+      surname: 'C. Martin'
+    },
+    title: 'Clean code',
+    description:
+      'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
+  };
 
-    let webApi: App;
-    const bookCollection = 'book';
-    let patchHandler: PatchHandler;
+  const initi18n = () => {
+    i18n.configure({
+      cookie: 'language-cookie',
+      directory: __dirname + '/locales',
+      locales: ['en', 'es', 'fr', 'es', 'pt', 'de']
+    });
+  };
 
-    beforeEach(() => {
+  const prepareWebApi = () => {
+    webApi = new App(process.env.PORT);
+    webApi.app.use(bodyParser.urlencoded({ extended: true }));
+    webApi.app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
+    webApi.app.use(bodyParser.json({ type: 'application/json-patch' }));
+    webApi.app.use(bodyParser.json());
+    initi18n();
+    webApi.app.use(i18n.init);
+
+  };
+
+
+  const prepareMongooseModel = () => {
+    const bookSchema: SchemaDefinition = { author: {}, description: String, title: String };
+    const mongooseSchema = new Schema(bookSchema);
+    model(bookCollection, mongooseSchema, bookCollection);
+  };
+
+  const registerPatch = () => {
+    patchHandler = new PatchHandler(
+      webApi.app,
+      `/${bookCollection}`,
+      bookCollection
+    );
+    patchHandler.registerPatch();
+  };
+
+  const prepareForTestPatchHandler = () => {
+    prepareWebApi();
+
+    prepareMongooseModel();
+
+    registerPatch();
+  };
+
+
+  describe('registerPatch():', () => {
+    let request: supertest.SuperTest<any>;
+    before(async () => {
       TestHelper.removeMongooseModels();
 
-      webApi = new App(process.env.PORT);
-      webApi.app.use(bodyParser.urlencoded({ extended: true }));
-      webApi.app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
-      webApi.app.use(bodyParser.json({ type: 'application/json-patch' }));
-      webApi.app.use(bodyParser.json());
+      prepareWebApi();
+      prepareMongooseModel();
+      registerPatch();
 
+      request = supertest(webApi.app);
 
-      const bookSchema: SchemaDefinition = { author: {}, description: String, title: String };
-      const mongooseSchema = new Schema(bookSchema);
-      model(bookCollection, mongooseSchema, bookCollection);
-
-      patchHandler = new PatchHandler(
-        webApi.app,
-        bookCollection,
-        bookCollection
-      );
-      patchHandler.registerPatch();
+      insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
+      insertedBookId = insertedBook[0]._id;
     });
 
-    it('registerPatch(): Should register PATCH route for book entity and test patch request after register route', async () => {
-      let insertedBookId = '';
+    let insertedBookId = '';
+    let insertedBook = {};
+    it('Should update book book inserted', async () => {
+      await request.patch(`/${bookCollection}/${insertedBookId}`)
+        .set('language-cookie', 'en')
+        .set('content-type', 'application/json-patch')
+        .send('[{"op": "replace", "path": "/title", "value": "newTitle"}]')
+        .expect(200);
+    });
 
-      try {
+    it('Should return 404, invalid documentId', async () => {
+      await request.patch(`/${bookCollection}/12321312`)
+        .set('language-cookie', 'en')
+        .set('content-type', 'application/json-patch')
+        .send('[{"op": "replace", "path": "/title", "value": "newTitle"}]')
+        .expect(404);
+    });
+
+    it('Should return 404, book not found', async () => {
+      await request.patch(`/${bookCollection}/000000000000000000000000`)
+        .set('language-cookie', 'en')
+        .set('content-type', 'application/json-patch')
+        .send('[{"op": "replace", "path": "/title", "value": "newTitle"}]')
+        .expect(404);
+    });
 
 
-        const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
-        insertedBookId = insertedBook[0]._id;
 
-        supertest(webApi.app)
+    it('Should return 400, Invalid patch', async () => {
+      await request
           .patch(`/${bookCollection}/${insertedBookId}`)
-          .set('content-type', 'application/json')
-          .send('[{"op": "replace", "path": "/title", "value": "newTitle"}]')
-          .expect(200);
-      } finally {
-        await connection.models.book.findOneAndDelete({
-          _id: { $eq: insertedBookId }
-        });
-      }
+          .set('language-cookie', 'en')
+          .set('content-type', 'application/json-patch')
+          .send('[{"op": "replace", "path": "/aatle", "value": "newTitle"}]')
+          .expect(400);
+    });
+    after(async () => {
+      await connection.models.book.findOneAndDelete({
+        _id: { $eq: insertedBookId }
+      });
+    });
+  });
+
+  describe('patch.handler methods', () => {
+    before(() => {
+      TestHelper.removeMongooseModels();
+      prepareForTestPatchHandler();
     });
 
-    it('getDocument(): Should get inserted Document', async () => {
-      const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
-      const bookId = insertedBook[0]._id;
+    describe('getDocument():', () => {
+      it('Should get inserted Document', async () => {
+        const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
+        const bookId = insertedBook[0]._id;
 
-      const book = patchHandler.getDocument(bookId);
-      await connection.models.book.findOneAndDelete({ '_id': { '$eq': bookId } });
+        const book = patchHandler.getDocument(bookId);
+        await connection.models.book.findOneAndDelete({ '_id': { '$eq': bookId } });
 
-      chai.assert(chai.expect(book).not.to.be.undefined.and.not.to.be.null);
+        chai.assert(chai.expect(book).not.to.be.undefined.and.not.to.be.null);
+      });
     });
 
-    it('documentExists(): Should get a document and verify it exits', async () => {
+    describe('documentExists()', () => {
+      it('Should get a document and verify it exits', async () => {
+        const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
+        const bookId = insertedBook[0]._id;
 
-      const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
-      const bookId = insertedBook[0]._id;
+        const book = await connection.models.book.findOne({ '_id': { '$eq': bookId } });
 
-      const book = await connection.models.book.findOne({ '_id': { '$eq': bookId } });
+        const documentExists = patchHandler.documentExists(book);
+        await connection.models.book.findOneAndDelete({ '_id': { '$eq': bookId } });
 
-      const documentExists = patchHandler.documentExists(book);
-      await connection.models.book.findOneAndDelete({ '_id': { '$eq': bookId } });
+        chai.assert(chai.expect(documentExists).is.true);
+      });
 
-      chai.assert(chai.expect(documentExists).is.true);
+      it('Should get a document and verify it does not exits', async () => {
+        const bookId = Types.ObjectId('000000000000000000000000');
+
+        const book = await connection.models.book.findOne({ '_id': { '$eq': bookId } });
+        const documentExists = patchHandler.documentExists(book);
+        chai.assert(chai.expect(documentExists).is.false);
+      });
     });
 
-    it('documentExists(): Should get a document and verify it does not exits', async () => {
-      const bookId = Types.ObjectId('000000000000000000000000');
 
-      const book = await connection.models.book.findOne({ '_id': { '$eq': bookId } });
-      const documentExists = patchHandler.documentExists(book);
-      chai.assert(chai.expect(documentExists).is.false);
+    describe('isValidPatch():', () => {
+      it('Should verify JsonPatchError received is not undefined', async () => {
+        const patchErrors: JsonPatchError = new JsonPatchError('Error', 'OPERATION_OP_INVALID');
+        const isValidPatch = patchHandler.isValidPatch(patchErrors);
+        chai.assert(chai.expect(isValidPatch).is.false);
+      });
+
+      it('Should verify JsonPatchError received is undefined', async () => {
+        const isValidPatch = patchHandler.isValidPatch(undefined);
+        chai.assert(chai.expect(isValidPatch).is.true);
+      });
     });
 
-    it('isValidPatch(): Should verify JsonPatchError received is not undefined', async () => {
-      const patchErrors: JsonPatchError = new JsonPatchError('Error', 'OPERATION_OP_INVALID');
-      const isValidPatch = patchHandler.isValidPatch(patchErrors);
-      chai.assert(chai.expect(isValidPatch).is.false);
-    });
+    describe('getPatchedDocument():', () => {
+      it('Should apply JsonPatchOperations and get document patched', async () => {
+        const bookToPatch = {
+          title: 'Clean code',
+          description:
+            'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
+        };
 
-    it('isValidPatch(): Should verify JsonPatchError received is undefined', async () => {
-      const isValidPatch = patchHandler.isValidPatch(undefined);
-      chai.assert(chai.expect(isValidPatch).is.true);
-    });
+        const jsonPatchOperations = [{ 'op': 'replace', 'path': '/title', 'value': 'newTitle' }];
 
-    it('getPatchedDocument(): Should apply JsonPatchOperations and get document patched', async () => {
-      const bookToPatch = {
-        title: 'Clean code',
-        description:
-          'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
-      };
-
-      const jsonPatchOperations = [{ 'op': 'replace', 'path': '/title', 'value': 'newTitle' }];
-
-      const newDocument = {
-        title: 'newTitle',
-        description:
-          'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
-      };
-
-      const documentPatched = patchHandler.getPatchedDocument(bookToPatch, jsonPatchOperations);
-      chai.assert(chai.expect(documentPatched.newDocument).to.deep.equal(newDocument));
-    });
-
-    it('updateDocument(): Should update document with JsonPatchOperations received', async () => {
-      const patchedDocument = {
-        newDocument: {
-          author: {
-            name: 'Robert',
-            surname: 'C. Martin'
-          },
+        const newDocument = {
           title: 'newTitle',
           description:
             'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
-        }
-      };
+        };
 
-      const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
-      const bookId = Types.ObjectId(insertedBook[0]._id);
+        const documentPatched = patchHandler.getPatchedDocument(bookToPatch, jsonPatchOperations);
+        chai.assert(chai.expect(documentPatched.newDocument).to.deep.equal(newDocument));
+      });
+    });
 
-      const updatedDocument = await patchHandler.updateDocument(bookId, patchedDocument);
-      await connection.models.book.findOneAndDelete({ '_id': { '$eq': bookId } });
+    describe('updateDocument():', () => {
+      it('Should update document with JsonPatchOperations received', async () => {
+        const patchedDocument = {
+          newDocument: {
+            author: {
+              name: 'Robert',
+              surname: 'C. Martin'
+            },
+            title: 'newTitle',
+            description:
+              'Even bad code can function. But if code isn\'t clean, it can bring a development organization to its knees'
+          }
+        };
 
-      chai.assert(chai.expect(updatedDocument.nModified).equals(1));
+        const insertedBook = await connection.models.book.insertMany([cleanCodeBook]);
+        const bookId = Types.ObjectId(insertedBook[0]._id);
+
+        const updatedDocument = await patchHandler.updateDocument(bookId, patchedDocument);
+        await connection.models.book.findOneAndDelete({ '_id': { '$eq': bookId } });
+
+        chai.assert(chai.expect(updatedDocument.nModified).equals(1));
+      });
     });
   });
 });

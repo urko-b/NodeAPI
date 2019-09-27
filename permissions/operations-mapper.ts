@@ -4,4 +4,4 @@ export const OperationsMapper = {
   'POST': 'insert',
   'PATCH': 'update',
   'DELETE': 'delete'
-}
+};

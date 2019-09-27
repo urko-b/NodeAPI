@@ -133,11 +133,26 @@ Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open i
 **Remember to use double quotes, it's strictly necessary**
 *Example:* 
 ```sh
-{   
-    "collection_name": "crag", 
-    "collection_schema": "{"name":{"type":"string","required":true,"unique":true},"description":{"type":"string","required":true},"sectors":[{"name":{"type":"string"},"routes":[{}]}],"location":{"type":"Object","structure":{" latitude":{"type":"number","required":true},"longitude":{"type":"number","required":true}},"required":true}}"
+{
+    "_id": ObjectId("5d0220ae1c9d440000446076"),
+    "collection_name": "collaborators",
+    "collection_schema": "{ \"_id\": \"ObjectId\", \"name\": \"String\", \"roles\": [{ \"type\": \"ObjectId\", \"ref\": \"roles\" }]}"
 }
 ```
+This document represent **collaborators** entity. If you look at *collection_schema* field you will see that *roles* is a relationship field. According to **mongoose** documentation https://mongoosejs.com/docs/populate.html you can specify a relationship between entities using *population*
+
+The API use a custom mapper which maps the field types you specify in *collection_schema* field to mongoose schema types:
+```sh
+'String': Schema.Types.String,
+'Date': Schema.Types.Date,
+'Number': Schema.Types.Number,
+'Boolean': Schema.Types.Boolean,
+'ObjectId': Schema.Types.ObjectId,
+'Buffer': Schema.Types.Buffer,
+'Mixed': Schema.Types.Mixed,
+'Array': Schema.Types.Array,
+'Decimal128': Schema.Types.Decimal128
+````
 
 **You must also have a collection called "system_tokens" in your MongoDB Database** The api use this collection to authorize each request. This collection must contains 2 fields:
 
@@ -152,3 +167,49 @@ Now you should have a _doc_ folder insidide _apidoc_ folder. Then you can open i
 }
 ```
 
+---
+
+## **Version 1.1**
+## Set Up Permssions
+
+---
+## Database Requirements
+**You must create two collectionn:"roles" and "permissions"**
+1. **roles** This collection represents entity *"roles"*. This entity contains a descriptive name and a list of permissions, this permissions must exist in *"permissions"* collection
+```sh
+{
+    "_id":"5d01f64d20e109206cb1112c",
+    "name":"programming_books",
+    "permissions":[
+        ObjectId("5d01f391ea7ac0206cacf8db"),
+        ObjectId("5d0902cb1c9d440000d5585a"),
+        ObjectId("5d10722779acd110e0979188"),
+        ObjectId("5d10724479acd110e0979189")]
+}
+```
+2. **permissions** This collection represents *"permissions"* entity. This must contains these fields:
+    2.1. **name** Descriptive name that represents what the permission does
+    2.2. **collection_name** The collection which this permission will be applied
+    2.3. **operation** The operation (find, updpdate, insert or delete)
+    2.4. **filter** Mongodb filter, this filter will be applied to each operation to verify if the user can do the requested action
+
+*Update permission restricted by topic field*
+```sh
+{
+    "_id": ObjectId("5d01f391ea7ac0206cacf8db"),
+    "name": "insert_programming_book",
+    "collection_name": "books",
+    "operation": "insert",
+    "filter": "{\"topic\": {\"$eq\": \"programming\"}}"
+}
+```
+*Find permission without restriction*
+```sh
+{
+    "_id": ObjectId("5d08fc3b1c9d440000d55859"),
+    "name": "find_all_books",
+    "collection_name": "books",
+    "operation": "find",
+    "filter": ""
+}
+```

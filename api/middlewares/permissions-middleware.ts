@@ -6,7 +6,6 @@ import { Permissions } from '../../permissions/permissions';
 export class PermissionsMidleware {
   public static canIDo = async (req, res, next) => {
     try {
-
       const collaboratorId = req.header('collaboratorId');
       const operation = Permissions.getOperationByMethodName(req.method);
       let collectionName = '';
@@ -15,15 +14,15 @@ export class PermissionsMidleware {
       if (collectionName === 'SyncSchema') {
         next();
       }
+
       const permisions = await Permissions.getPermissions(collaboratorId, collectionName, operation);
 
-      console.log('permisions', permisions)
       if (!PermissionsMidleware.hasPermissions(permisions)) {
         res.status(401);
         return next('Unauthorized');
       }
-      let filters = PermissionsMidleware.getFiltersFromPermissions(permisions);
 
+      const filters = PermissionsMidleware.getFiltersFromPermissions(permisions);
       let findBy = {};
       if (filters.length > 0) {
         findBy = { '$or': filters };

@@ -20,12 +20,6 @@ COPY package*.json ./
 
 RUN npm install
 
-# This commands runs a monkeypatch to filterable function that is
-# required in order to resolve array fields filtering. 
-# This issue is specified in their github repo:
-# https://github.com/baugarten/node-restful/pull/141
-RUN npx patch-package
-
 # If you are building your code for production
 # RUN npm install --only=production
 
