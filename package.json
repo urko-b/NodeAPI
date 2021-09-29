@@ -85,7 +85,7 @@
     "eslint": "^5.14.0",
     "eslint-plugin-import": "^2.19.1",
     "extract-mongo-schema": "^0.2.7",
-    "i": "^0.3.6",
+    "i": "^0.3.7",
     "mocha": "^6.2.2",
     "nodemon": "^1.19.4",
     "npm": "^6.13.4",
